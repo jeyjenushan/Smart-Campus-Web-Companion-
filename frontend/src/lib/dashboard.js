@@ -1,25 +1,55 @@
 import { format, isToday, isTomorrow, differenceInHours } from 'date-fns';
 import { COURSES } from '@/data/seedData';
 
+
+
 export function getCourseColor(code) {
-  return COURSES.find(c => c.code === code)?.color ?? '#94a3b8';
+  return COURSES.find((c) => c.code === code)?.color ?? '#94a3b8';
 }
 
-export function getPriorityColor(p) {
-  return { urgent: 'red', high: 'yellow', medium: 'blue', low: 'green' }[p] ?? 'gray';
+export function getPriorityColor(priority) {
+  return (
+    {
+      urgent: 'red',
+      high: 'yellow',
+      medium: 'blue',
+      low: 'green',
+    }[priority] ?? 'gray'
+  );
+}
+
+export function getSessionTypeColor(type) {
+  return (
+    {
+      Lecture: 'blue',
+      Lab: 'green',
+      Seminar: 'purple',
+      Tutorial: 'yellow',
+    }[type] ?? 'gray'
+  );
 }
 
 export function getDueLabel(dateStr, today = new Date()) {
-  const d = new Date(dateStr);
+  const dueDate = new Date(dateStr);
 
-  if (isToday(d)) return { label: 'Due today', color: 'text-danger' };
-  if (isTomorrow(d)) return { label: 'Due tomorrow', color: 'text-warning' };
+  if (isToday(dueDate)) {
+    return { label: 'Due today', color: 'text-danger' };
+  }
 
-  const h = differenceInHours(d, today);
+  if (isTomorrow(dueDate)) {
+    return { label: 'Due tomorrow', color: 'text-warning' };
+  }
 
-  if (h < 0) return { label: 'Overdue', color: 'text-danger font-bold' };
+  const hoursLeft = differenceInHours(dueDate, today);
 
-  return { label: `Due ${format(d, 'MMM d')}`, color: 'text-ink-muted' };
+  if (hoursLeft < 0) {
+    return { label: 'Overdue', color: 'text-danger font-bold' };
+  }
+
+  return {
+    label: `Due ${format(dueDate, 'MMM d')}`,
+    color: 'text-ink-muted',
+  };
 }
 
 export function getGreeting() {

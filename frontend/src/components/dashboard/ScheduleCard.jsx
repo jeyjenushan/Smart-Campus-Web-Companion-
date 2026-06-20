@@ -1,4 +1,8 @@
+import {getCourseColor} from "@/lib/dashboard"
+
 import { cn } from '@/lib/cn';
+import { SessionTypeBadge } from "./SessionTypeBadge";
+
 export function ScheduleCard({ item }) {
   const now = new Date();
   const [startH, startM] = item.startTime.split(':').map(Number);
