@@ -12,7 +12,8 @@ export function useWeather() {
     setWeatherError(null);
 
     try {
-      const data = await fetchWeather();
+      const { lat, lon } = await getCurrentPosition();
+      const data = await fetchWeather(lat, lon);
       setWeather(data);
     } catch (e) {
       setWeatherError(e.message);
@@ -31,4 +32,22 @@ export function useWeather() {
     weatherError,
     loadWeather,
   };
+}
+
+function getCurrentPosition() {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) {
+      reject(new Error('Geolocation not supported'));
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      position =>
+        resolve({
+          lat: position.coords.latitude,
+          lon: position.coords.longitude,
+        }),
+      reject
+    );
+  });
 }

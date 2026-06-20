@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import {
-  getAllAssignments, putAssignment, deleteAssignment,
+  getAllAssignments,
+  putAssignment,
+  deleteAssignment,
 } from '@/lib/db';
 import { ASSIGNMENT_SEED } from '@/data/seedData';
 import { scheduleDeadlineReminder } from '@/lib/notifications';
@@ -11,100 +13,198 @@ export const useAssignmentStore = create((set, get) => ({
   assignments: [],
   loading: false,
   error: null,
-  filter: 'all',   // all | pending | in-progress | completed | overdue
+  filter: 'all',
 
-  // ── Load ────────────────────────────────────────────────────────────────────
   loadAssignments: async () => {
     set({ loading: true, error: null });
+
     try {
       let items = await getAllAssignments();
+
       if (items.length === 0 && !localStorage.getItem(SEEDED_KEY)) {
-        for (const a of ASSIGNMENT_SEED) await putAssignment(a);
+        for (const assignment of ASSIGNMENT_SEED) {
+          await putAssignment(assignment);
+        }
+
         localStorage.setItem(SEEDED_KEY, '1');
         items = await getAllAssignments();
       }
-      set({ assignments: items, loading: false });
-    } catch (e) {
-      set({ error: e.message, loading: false });
+
+      set({
+        assignments: items,
+        loading: false,
+      });
+    } catch (error) {
+      set({
+        error: error.message,
+        loading: false,
+      });
     }
   },
 
-  // ── Add ─────────────────────────────────────────────────────────────────────
-  addAssignment: async (data) => {
+  addAssignment: async data => {
     const assignment = {
       ...data,
       id: `assign-${Date.now()}-${Math.random().toString(36).slice(2)}`,
       createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
       status: data.status ?? 'pending',
     };
-    await putAssignment(assignment);
-    set(s => ({ assignments: [...s.assignments, assignment] }));
-    scheduleDeadlineReminder(assignment);
-    return assignment;
+
+    // Immediate UI update
+    set(state => ({
+      assignments: [assignment, ...state.assignments],
+    }));
+
+    try {
+      await putAssignment(assignment);
+      scheduleDeadlineReminder(assignment);
+      return assignment;
+    } catch (error) {
+      // Rollback if DB save fails
+      set(state => ({
+        assignments: state.assignments.filter(item => item.id !== assignment.id),
+        error: error.message,
+      }));
+
+      throw error;
+    }
   },
 
-  // ── Update ──────────────────────────────────────────────────────────────────
   updateAssignment: async (id, changes) => {
-    const assignments = get().assignments;
-    const existing = assignments.find(a => a.id === id);
-    if (!existing) return;
+    const existing = get().assignments.find(item => item.id === id);
+
+    if (!existing) return null;
+
     const updated = {
       ...existing,
       ...changes,
+      updatedAt: new Date().toISOString(),
       ...(changes.status === 'completed' && !existing.completedAt
         ? { completedAt: new Date().toISOString() }
         : {}),
+      ...(changes.status !== 'completed'
+        ? { completedAt: null }
+        : {}),
     };
-    await putAssignment(updated);
-    set(s => ({
-      assignments: s.assignments.map(a => a.id === id ? updated : a),
+
+    // Immediate UI update
+    set(state => ({
+      assignments: state.assignments.map(item =>
+        item.id === id ? updated : item
+      ),
     }));
-    return updated;
+
+    try {
+      await putAssignment(updated);
+      return updated;
+    } catch (error) {
+      // Rollback if DB update fails
+      set(state => ({
+        assignments: state.assignments.map(item =>
+          item.id === id ? existing : item
+        ),
+        error: error.message,
+      }));
+
+      throw error;
+    }
   },
 
-  // ── Delete ──────────────────────────────────────────────────────────────────
-  removeAssignment: async (id) => {
-    await deleteAssignment(id);
-    set(s => ({ assignments: s.assignments.filter(a => a.id !== id) }));
+  removeAssignment: async id => {
+    const existing = get().assignments.find(item => item.id === id);
+
+    if (!existing) return;
+
+    // Immediate UI update
+    set(state => ({
+      assignments: state.assignments.filter(item => item.id !== id),
+    }));
+
+    try {
+      await deleteAssignment(id);
+    } catch (error) {
+      // Rollback if DB delete fails
+      set(state => ({
+        assignments: [existing, ...state.assignments],
+        error: error.message,
+      }));
+
+      throw error;
+    }
   },
 
-  // ── Toggle status ───────────────────────────────────────────────────────────
-  toggleComplete: async (id) => {
-    const a = get().assignments.find(x => x.id === id);
-    if (!a) return;
-    const newStatus = a.status === 'completed' ? 'pending' : 'completed';
-    await get().updateAssignment(id, { status: newStatus });
+  toggleComplete: async id => {
+    const assignment = get().assignments.find(item => item.id === id);
+
+    if (!assignment) return;
+
+    const newStatus =
+      assignment.status === 'completed' ? 'pending' : 'completed';
+
+    return get().updateAssignment(id, {
+      status: newStatus,
+    });
   },
 
-  // ── Filter ──────────────────────────────────────────────────────────────────
-  setFilter: (filter) => set({ filter }),
+  setFilter: filter => set({ filter }),
 
-  // ── Computed ─────────────────────────────────────────────────────────────────
   getFiltered: () => {
     const { assignments, filter } = get();
     const now = new Date();
+
     switch (filter) {
-      case 'pending':     return assignments.filter(a => a.status === 'pending');
-      case 'in-progress': return assignments.filter(a => a.status === 'in-progress');
-      case 'completed':   return assignments.filter(a => a.status === 'completed');
+      case 'pending':
+        return assignments.filter(item => item.status === 'pending');
+
+      case 'in-progress':
+        return assignments.filter(item => item.status === 'in-progress');
+
+      case 'completed':
+        return assignments.filter(item => item.status === 'completed');
+
       case 'overdue':
-        return assignments.filter(a =>
-          a.status !== 'completed' && new Date(a.dueDate) < now
+        return assignments.filter(
+          item =>
+            item.status !== 'completed' &&
+            item.dueDate &&
+            new Date(item.dueDate) < now
         );
-      default:            return assignments;
+
+      default:
+        return assignments;
     }
   },
 
   getStats: () => {
-    const a = get().assignments;
+    const assignments = get().assignments;
     const now = new Date();
+
     return {
-      total:      a.length,
-      pending:    a.filter(x => x.status === 'pending').length,
-      inProgress: a.filter(x => x.status === 'in-progress').length,
-      completed:  a.filter(x => x.status === 'completed').length,
-      overdue:    a.filter(x => x.status !== 'completed' && new Date(x.dueDate) < now).length,
-      urgent:     a.filter(x => x.priority === 'urgent' && x.status !== 'completed').length,
+      total: assignments.length,
+
+      pending: assignments.filter(item => item.status === 'pending').length,
+
+      inProgress: assignments.filter(
+        item => item.status === 'in-progress'
+      ).length,
+
+      completed: assignments.filter(
+        item => item.status === 'completed'
+      ).length,
+
+      overdue: assignments.filter(
+        item =>
+          item.status !== 'completed' &&
+          item.dueDate &&
+          new Date(item.dueDate) < now
+      ).length,
+
+      urgent: assignments.filter(
+        item =>
+          item.priority === 'urgent' &&
+          item.status !== 'completed'
+      ).length,
     };
   },
 }));

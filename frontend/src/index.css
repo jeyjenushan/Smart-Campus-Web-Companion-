@@ -190,19 +190,24 @@
 
 @layer utilities {
 
-  .course-select-scroll {
-    scrollbar-width: thin;
-    scrollbar-color: #a1a1aa transparent;
-  }
+.course-select-scroll {
+  max-height: 240px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #a1a1aa transparent;
+  touch-action: pan-y;
+}
 
-  .course-select-scroll::-webkit-scrollbar {
-    width: 2px;
-  }
+.course-select-scroll::-webkit-scrollbar {
+  width: 2px;
+}
 
-  .course-select-scroll::-webkit-scrollbar-thumb {
-    background: #a1a1aa;
-    border-radius: 999px;
-  }
+.course-select-scroll::-webkit-scrollbar-thumb {
+  background: #a1a1aa;
+  border-radius: 999px;
+}
 
   .animate-modal {
     animation: modalFadeIn .25s cubic-bezier(.16,1,.3,1);
