@@ -14,8 +14,8 @@ export async function requestNotificationPermission() {
 export function sendNotification(title, options = {}) {
   if (!('Notification' in window) || Notification.permission !== 'granted') return null;
   return new Notification(title, {
-    icon: '/icons/icon-192.png',
-    badge: '/icons/icon-192.png',
+    icon: '/icon-192.png',
+    badge: '/icon-192.png',
     vibrate: [200, 100, 200],
     ...options,
   });
