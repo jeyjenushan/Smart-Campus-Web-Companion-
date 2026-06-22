@@ -4,10 +4,7 @@ import {
   putAssignment,
   deleteAssignment,
 } from '@/lib/db';
-import { ASSIGNMENT_SEED } from '@/data/seedData';
 import { scheduleDeadlineReminder } from '@/lib/notifications';
-
-const SEEDED_KEY = 'campus-sync-assignments-seeded';
 
 export const useAssignmentStore = create((set, get) => ({
   assignments: [],
@@ -19,16 +16,7 @@ export const useAssignmentStore = create((set, get) => ({
     set({ loading: true, error: null });
 
     try {
-      let items = await getAllAssignments();
-
-      if (items.length === 0 && !localStorage.getItem(SEEDED_KEY)) {
-        for (const assignment of ASSIGNMENT_SEED) {
-          await putAssignment(assignment);
-        }
-
-        localStorage.setItem(SEEDED_KEY, '1');
-        items = await getAllAssignments();
-      }
+      const items = await getAllAssignments();
 
       set({
         assignments: items,
