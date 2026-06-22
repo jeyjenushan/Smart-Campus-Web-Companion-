@@ -40,17 +40,6 @@ export default function ProfilePage() {
     toggleNotifications,
   } = useProfilePage();
 
-    progressPct,
-    semCredits,
-    completedCourses,
-    cgpa,
-    totalCreditsDone,
-
-    handleSave,
-    handleAvatarChange,
-    toggleNotifications,
-  } = useProfilePage();
-
   if (loading || !profile) {
     return (
       <div className="flex items-center justify-center min-h-screen">
