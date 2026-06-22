@@ -9,7 +9,7 @@ const THEME_KEY = 'campus-sync-theme';
  * Persists theme selection to localStorage
  */
 export const useThemeStore = create((set, get) => ({
-  theme: localStorage.getItem(THEME_KEY) || 'light', // 'light' or 'dark'
+  theme: localStorage.getItem(THEME_KEY) || 'dark', // 'light' or 'dark'
   
   /**
    * Set theme and persist to localStorage
@@ -40,12 +40,12 @@ export const useThemeStore = create((set, get) => ({
    * Initialize theme from localStorage on app start
    */
   initializeTheme: () => {
-    const savedTheme = localStorage.getItem(THEME_KEY) || 'light';
+    const savedTheme = localStorage.getItem(THEME_KEY) || 'dark';
     
     // Check system preference if no saved theme
     if (!localStorage.getItem(THEME_KEY)) {
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      const systemTheme = prefersDark ? 'dark' : 'light';
+      const systemTheme = prefersDark ? 'dark' : 'dark';
       localStorage.setItem(THEME_KEY, systemTheme);
     }
     
