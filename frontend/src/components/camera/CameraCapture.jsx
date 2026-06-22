@@ -187,7 +187,7 @@ export function CameraCapture({ onCapture }) {
         <img
           src={captured}
           alt="Captured note"
-          className="w-full rounded-2xl object-contain max-h-64 bg-black"
+          className="w-full rounded-2xl object-contain max-h-64 bg-black dark:bg-slate-900 border border-slate-800 dark:border-slate-700"
         />
 
         <CustomSelect
@@ -229,14 +229,14 @@ export function CameraCapture({ onCapture }) {
   if (isMobile) {
     return (
       <div className="space-y-4">
-        <div className="rounded-2xl bg-ink/5 border border-ink/10 p-8 text-center">
-          <Camera className="w-10 h-10 text-brand-600 mx-auto mb-3" />
+        <div className="rounded-2xl bg-ink/5 dark:bg-slate-800/50 border border-ink/10 dark:border-slate-700 p-8 text-center">
+          <Camera className="w-10 h-10 text-brand-600 dark:text-brand-400 mx-auto mb-3" />
 
-          <p className="text-sm font-semibold text-ink">
+          <p className="text-sm font-semibold text-ink dark:text-slate-100">
             Ready to capture
           </p>
 
-          <p className="text-xs text-ink-muted mt-1">
+          <p className="text-xs text-ink-muted dark:text-slate-400 mt-1">
             Tap below to open your camera
           </p>
         </div>
@@ -247,16 +247,16 @@ export function CameraCapture({ onCapture }) {
           <button
             type="button"
             onClick={openNativeCamera}
-            className="w-16 h-16 rounded-full border-4 border-white bg-white shadow-card-lg active:scale-95 transition-all"
+            className="w-16 h-16 rounded-full border-4 border-white dark:border-slate-700 bg-white dark:bg-slate-800 shadow-card-lg dark:shadow-lg active:scale-95 transition-all"
             aria-label="Open camera"
           >
-            <div className="w-full h-full rounded-full bg-brand-600 flex items-center justify-center">
-              <Camera className="w-7 h-7 text-white" />
+            <div className="w-full h-full rounded-full bg-brand-600 dark:bg-brand-500 flex items-center justify-center">
+              <Camera className="w-7 h-7 text-white dark:text-white" />
             </div>
           </button>
         </div>
 
-        <p className="text-xs text-ink-faint text-center">
+        <p className="text-xs text-ink-faint dark:text-slate-400 text-center">
           Point camera at handwritten notes and tap to capture
         </p>
       </div>
@@ -265,14 +265,14 @@ export function CameraCapture({ onCapture }) {
 
   if (camError) {
     return (
-      <div className="rounded-2xl bg-danger/10 border border-danger/30 p-6 text-center">
-        <CameraOff className="w-10 h-10 text-danger mx-auto mb-3" />
+      <div className="rounded-2xl bg-danger/10 dark:bg-red-900/20 border border-danger/30 dark:border-red-800 p-6 text-center">
+        <CameraOff className="w-10 h-10 text-danger dark:text-red-400 mx-auto mb-3" />
 
-        <p className="text-sm font-semibold text-danger">
+        <p className="text-sm font-semibold text-danger dark:text-red-400">
           {camError}
         </p>
 
-        <p className="text-xs text-ink-muted mt-1">
+        <p className="text-xs text-ink-muted dark:text-slate-400 mt-1">
           Check browser permissions and try again
         </p>
 
@@ -310,7 +310,7 @@ export function CameraCapture({ onCapture }) {
         <button
           type="button"
           onClick={flipCamera}
-          className="absolute top-3 right-3 w-10 h-10 bg-black/50 text-white rounded-full flex items-center justify-center"
+          className="absolute top-3 right-3 w-10 h-10 bg-black/50 dark:bg-black/70 text-white dark:text-slate-200 rounded-full flex items-center justify-center hover:bg-black/70 dark:hover:bg-black/80 transition-colors"
           aria-label="Flip camera"
         >
           <FlipHorizontal className="w-5 h-5" />
@@ -325,18 +325,18 @@ export function CameraCapture({ onCapture }) {
           onClick={capture}
           disabled={!ready}
           className={cn(
-            'w-16 h-16 rounded-full border-4 border-white bg-white shadow-card-lg active:scale-95 transition-all',
+            'w-16 h-16 rounded-full border-4 border-white dark:border-slate-700 bg-white dark:bg-slate-800 shadow-card-lg dark:shadow-lg active:scale-95 transition-all',
             !ready && 'opacity-50 cursor-not-allowed'
           )}
           aria-label="Capture photo"
         >
-          <div className="w-full h-full rounded-full bg-brand-600 flex items-center justify-center">
-            <Camera className="w-7 h-7 text-white" />
+          <div className="w-full h-full rounded-full bg-brand-600 dark:bg-brand-500 flex items-center justify-center">
+            <Camera className="w-7 h-7 text-white dark:text-white" />
           </div>
         </button>
       </div>
 
-      <p className="text-xs text-ink-faint text-center">
+      <p className="text-xs text-ink-faint dark:text-slate-400 text-center">
         Point camera at handwritten notes and tap to capture
       </p>
     </div>

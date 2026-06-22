@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef } from 'react';
 import { Camera, CameraOff, Image } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -14,28 +14,16 @@ import { useCameraNotes } from '@/hooks/camera/useCameraNotes';
 import { useCameraSupport } from '@/hooks/camera/useCameraSupport';
 import { useIsMobileDevice } from '@/hooks/camera/useMobileDevice';
 
-function isIOS() {
-  if (typeof navigator === 'undefined') return false;
-
-  return (
-    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
-  );
-}
-
-function isAndroid() {
-  if (typeof navigator === 'undefined') return false;
-  return /Android/.test(navigator.userAgent);
-}
-
+/**
+ * CameraPage Component
+ * Manages lecture note capture using device camera
+ * Supports both web camera API and native mobile camera
+ * Theme-aware with dark/light mode support
+ */
 export default function CameraPage() {
   const hasCameraAPI = useCameraSupport();
   const isMobile = useIsMobileDevice();
-
-  const androidInputRef = useRef(null);
-  const iosCameraInputRef = useRef(null);
-
-  const [platform, setPlatform] = useState('other');
+  const nativeCameraRef = useRef(null);
 
   const {
     notes,
@@ -54,28 +42,22 @@ export default function CameraPage() {
     downloadNote,
   } = useCameraNotes();
 
-  useEffect(() => {
-    if (isIOS()) setPlatform('ios');
-    else if (isAndroid()) setPlatform('android');
-    else setPlatform('other');
-  }, []);
-
+  /**
+   * Opens camera - uses native camera on mobile, web API on desktop
+   */
   function openCapture() {
     if (isMobile) {
-      if (platform === 'android') {
-        androidInputRef.current?.click();
-        return;
-      }
-
-      if (platform === 'ios') {
-        iosCameraInputRef.current?.click();
-        return;
-      }
+      nativeCameraRef.current?.click();
+      return;
     }
 
     setShowCamera(true);
   }
 
+  /**
+   * Handles file capture from native mobile camera
+   * Converts to base64 and passes to capture handler
+   */
   function handleNativeCapture(e) {
     const file = e.target.files?.[0];
     e.target.value = '';
@@ -110,18 +92,9 @@ export default function CameraPage() {
 
   return (
     <div className="animate-in">
-      {/* Android: old project behavior - no capture attribute */}
+      {/* Mobile native camera input - works on iOS and Android */}
       <input
-        ref={androidInputRef}
-        type="file"
-        accept="image/*"
-        className="hidden"
-        onChange={handleNativeCapture}
-      />
-
-      {/* iOS: old project behavior - capture environment */}
-      <input
-        ref={iosCameraInputRef}
+        ref={nativeCameraRef}
         type="file"
         accept="image/*"
         capture="environment"
@@ -149,9 +122,9 @@ export default function CameraPage() {
 
       <div className="px-4 pt-4 pb-6 space-y-4">
         {!hasCameraAPI && (
-          <div className="card p-4 flex items-center gap-3">
-            <CameraOff className="w-5 h-5 text-warning flex-shrink-0" />
-            <p className="text-sm text-ink-muted">
+          <div className="card p-4 flex items-center gap-3 bg-warning-light dark:bg-red-900/20 border border-warning dark:border-red-800">
+            <CameraOff className="w-5 h-5 text-warning dark:text-red-400 flex-shrink-0" />
+            <p className="text-sm text-ink-muted dark:text-slate-400">
               Camera API requires HTTPS or localhost.
             </p>
           </div>
