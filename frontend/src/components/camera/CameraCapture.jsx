@@ -6,27 +6,51 @@ import { Button, Input, Spinner } from '@/components/ui';
 import { CustomSelect } from '@/components/ui/Select';
 import { COURSES } from '@/data/seedData';
 import { cn } from '@/lib/cn';
-import { useIsMobileDevice } from '@/hooks/camera/useMobileDevice';
+import { useIsMobileDevice } from '../../hooks/camera/useMobileDevice';
 
 const COURSE_OPTS = [
   { value: '', label: 'Select course…' },
   ...COURSES.map(c => ({ value: c.code, label: c.code })),
 ];
 
-export function CameraCapture({ onCapture, initialCaptured = null, onRetakeMobile }) {
+function isIOSDevice() {
+  if (typeof navigator === 'undefined') return false;
+
+  return (
+    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+  );
+}
+
+function isAndroidDevice() {
+  if (typeof navigator === 'undefined') return false;
+  return /Android/i.test(navigator.userAgent);
+}
+
+export function CameraCapture({ onCapture }) {
   const isMobile = useIsMobileDevice();
 
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
 
+  const androidInputRef = useRef(null);
+  const iosCameraInputRef = useRef(null);
+
   const [ready, setReady] = useState(false);
   const [camError, setCamError] = useState(null);
   const [facing, setFacing] = useState('environment');
-  const [captured, setCaptured] = useState(initialCaptured);
+  const [captured, setCaptured] = useState(null);
   const [course, setCourse] = useState('');
   const [noteText, setNoteText] = useState('');
   const [saving, setSaving] = useState(false);
+  const [platform, setPlatform] = useState('other');
+
+  useEffect(() => {
+    if (isIOSDevice()) setPlatform('ios');
+    else if (isAndroidDevice()) setPlatform('android');
+    else setPlatform('other');
+  }, []);
 
   const stopStream = useCallback(() => {
     streamRef.current?.getTracks().forEach(track => track.stop());
@@ -72,15 +96,44 @@ export function CameraCapture({ onCapture, initialCaptured = null, onRetakeMobil
   );
 
   useEffect(() => {
-    setCaptured(initialCaptured);
-  }, [initialCaptured]);
-
-  useEffect(() => {
-    if (isMobile || captured) return;
+    if (isMobile) return;
 
     startCamera('environment');
     return stopStream;
-  }, [isMobile, captured, startCamera, stopStream]);
+  }, [isMobile, startCamera, stopStream]);
+
+  function openNativeCamera() {
+    if (platform === 'ios') {
+      iosCameraInputRef.current?.click();
+      return;
+    }
+
+    androidInputRef.current?.click();
+  }
+
+  function handleNativeCapture(e) {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please capture an image.');
+      return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      setCaptured(reader.result);
+    };
+
+    reader.onerror = () => {
+      toast.error('Could not read captured image.');
+    };
+
+    reader.readAsDataURL(file);
+  }
 
   function flipCamera() {
     const next = facing === 'environment' ? 'user' : 'environment';
@@ -113,11 +166,10 @@ export function CameraCapture({ onCapture, initialCaptured = null, onRetakeMobil
     setCaptured(null);
 
     if (isMobile) {
-      onRetakeMobile?.();
-      return;
+      setTimeout(openNativeCamera, 100);
+    } else {
+      startCamera(facing);
     }
-
-    startCamera(facing);
   }
 
   async function saveNote() {
@@ -145,6 +197,29 @@ export function CameraCapture({ onCapture, initialCaptured = null, onRetakeMobil
       setSaving(false);
     }
   }
+
+  const nativeCameraInputs = (
+    <>
+      {/* Android: same as your old project. No capture attribute. */}
+      <input
+        ref={androidInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleNativeCapture}
+      />
+
+      {/* iOS: capture works better and opens native camera. */}
+      <input
+        ref={iosCameraInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        className="hidden"
+        onChange={handleNativeCapture}
+      />
+    </>
+  );
 
   if (captured) {
     return (
@@ -185,12 +260,47 @@ export function CameraCapture({ onCapture, initialCaptured = null, onRetakeMobil
             Save Note
           </Button>
         </div>
+
+        {isMobile && nativeCameraInputs}
       </div>
     );
   }
 
   if (isMobile) {
-    return null;
+    return (
+      <div className="space-y-4">
+        <div className="rounded-2xl bg-ink/5 border border-ink/10 p-8 text-center">
+          <Camera className="w-10 h-10 text-brand-600 mx-auto mb-3" />
+
+          <p className="text-sm font-semibold text-ink">
+            Ready to capture
+          </p>
+
+          <p className="text-xs text-ink-muted mt-1">
+            Tap below to open your camera
+          </p>
+        </div>
+
+        {nativeCameraInputs}
+
+        <div className="flex justify-center">
+          <button
+            type="button"
+            onClick={openNativeCamera}
+            className="w-16 h-16 rounded-full border-4 border-white bg-white shadow-card-lg active:scale-95 transition-all"
+            aria-label="Open camera"
+          >
+            <div className="w-full h-full rounded-full bg-brand-600 flex items-center justify-center">
+              <Camera className="w-7 h-7 text-white" />
+            </div>
+          </button>
+        </div>
+
+        <p className="text-xs text-ink-faint text-center">
+          Point camera at handwritten notes and tap to capture
+        </p>
+      </div>
+    );
   }
 
   if (camError) {
@@ -198,7 +308,9 @@ export function CameraCapture({ onCapture, initialCaptured = null, onRetakeMobil
       <div className="rounded-2xl bg-danger/10 border border-danger/30 p-6 text-center">
         <CameraOff className="w-10 h-10 text-danger mx-auto mb-3" />
 
-        <p className="text-sm font-semibold text-danger">{camError}</p>
+        <p className="text-sm font-semibold text-danger">
+          {camError}
+        </p>
 
         <p className="text-xs text-ink-muted mt-1">
           Check browser permissions and try again
