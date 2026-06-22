@@ -2,6 +2,7 @@ import { BookOpen, CheckCircle2 } from 'lucide-react';
 
 import { cn } from '@/lib/cn';
 import { CourseRow } from './CourseRow';
+import { DEGREES } from '@/data/seedData';
 
 export function CourseTabsCard({
   profile,
@@ -11,6 +12,15 @@ export function CourseTabsCard({
   cgpa,
   totalCreditsDone,
 }) {
+  // Get current degree info and its courses
+  const currentDegree = DEGREES.find(d => d.name === profile.degree);
+  const degreeCourseCodes = currentDegree?.courses || [];
+  
+  // Filter completed courses to show only those in current degree
+  const degreeLevelCompletedCourses = completedCourses.filter(cc =>
+    degreeCourseCodes.includes(cc.code)
+  );
+
   return (
     <div className="card p-0 overflow-hidden">
       <div className="flex border-b border-surface-border">
@@ -47,9 +57,9 @@ export function CourseTabsCard({
           ))}
 
         {tab === 'completed' &&
-          (completedCourses.length ? (
+          (degreeLevelCompletedCourses.length ? (
             <>
-              {completedCourses.map(course => (
+              {degreeLevelCompletedCourses.map(course => (
                 <CourseRow key={course.code} course={course} completed />
               ))}
 

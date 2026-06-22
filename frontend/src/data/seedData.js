@@ -40,6 +40,83 @@ export const COURSES = [
   { code: 'SE 4126', name: 'Research Methods in SE',          credits: 2, color: '#ec4899' },
 ];
 
+/**
+ * Degree Programs with their courses
+ * Each degree contains relevant courses for that program
+ */
+export const DEGREES = [
+  {
+    id: 'se-honours',
+    name: 'BSc Honours in Software Engineering',
+    faculty: 'Faculty of Science',
+    totalCredits: 120,
+    courses: ['SE 4121', 'SE 4122', 'SE 4123', 'SE 4124', 'SE 4125', 'SE 4126'],
+  },
+  {
+    id: 'cs-honours',
+    name: 'BSc Honours in Computer Science',
+    faculty: 'Faculty of Science',
+    totalCredits: 120,
+    courses: ['SE 4121', 'SE 4123', 'SE 4124'],
+  },
+  {
+    id: 'it-honours',
+    name: 'BSc Honours in Information Technology',
+    faculty: 'Faculty of Science',
+    totalCredits: 120,
+    courses: ['SE 4122', 'SE 4123', 'SE 4125'],
+  },
+  {
+    id: 'web-dev-honours',
+    name: 'BSc Honours in Web Development',
+    faculty: 'Faculty of Science',
+    totalCredits: 120,
+    courses: ['SE 4122', 'SE 4121'],
+  },
+  {
+    id: 'ai-honours',
+    name: 'BSc Honours in Artificial Intelligence',
+    faculty: 'Faculty of Science',
+    totalCredits: 120,
+    courses: ['SE 4124', 'SE 4121', 'SE 4123'],
+  },
+  {
+    id: 'cybersec-honours',
+    name: 'BSc Honours in Cybersecurity',
+    faculty: 'Faculty of Science',
+    totalCredits: 120,
+    courses: ['SE 4125', 'SE 4121', 'SE 4123'],
+  },
+  {
+    id: 'data-honours',
+    name: 'BSc Honours in Data Science',
+    faculty: 'Faculty of Science',
+    totalCredits: 120,
+    courses: ['SE 4124', 'SE 4123'],
+  },
+  {
+    id: 'mobile-honours',
+    name: 'BSc Honours in Mobile Computing',
+    faculty: 'Faculty of Science',
+    totalCredits: 120,
+    courses: ['SE 4122', 'SE 4124', 'SE 4125'],
+  },
+  {
+    id: 'cloud-honours',
+    name: 'BSc Honours in Cloud Computing',
+    faculty: 'Faculty of Science',
+    totalCredits: 120,
+    courses: ['SE 4123', 'SE 4121', 'SE 4122'],
+  },
+  {
+    id: 'devops-honours',
+    name: 'BSc Honours in DevOps Engineering',
+    faculty: 'Faculty of Science',
+    totalCredits: 120,
+    courses: ['SE 4123', 'SE 4122', 'SE 4121', 'SE 4126'],
+  },
+];
+
 const sid = (n) => `seed-schedule-${n}`;
 const aid = (n) => `seed-assign-${n}`;
 

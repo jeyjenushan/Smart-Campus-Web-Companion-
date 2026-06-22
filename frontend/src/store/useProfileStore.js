@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { getProfile, saveProfile } from '@/lib/db';
-import { PROFILE_SEED, COURSES } from '@/data/seedData';
+import { PROFILE_SEED, COURSES, DEGREES } from '@/data/seedData';
 import { useAuthStore } from './useAuthStore';
 
 export const useProfileStore = create((set, get) => ({
@@ -38,7 +38,7 @@ export const useProfileStore = create((set, get) => ({
           gpa: 0,
           completedCredits: 0,
           totalCredits: 120,
-          courses: COURSES,
+          courses: [],
           completedCourses: [],
           notificationsEnabled: false,
           theme: 'light',
@@ -50,12 +50,22 @@ export const useProfileStore = create((set, get) => ({
         localStorage.setItem('campus-sync-user-profiles', JSON.stringify(userProfiles));
       }
 
-      // Ensure profile has courses array
+      // Ensure profile has courses array based on degree
       if (!p.courses) {
-        p.courses = COURSES;
+        p.courses = [];
       }
       if (!p.completedCourses) {
         p.completedCourses = [];
+      }
+
+      // If degree is set, populate courses from that degree
+      if (p.degree) {
+        const degreeInfo = DEGREES.find(d => d.name === p.degree);
+        if (degreeInfo) {
+          p.courses = degreeInfo.courses
+            .map(code => COURSES.find(c => c.code === code))
+            .filter(Boolean);
+        }
       }
 
       set({ profile: p, loading: false });
@@ -74,6 +84,16 @@ export const useProfileStore = create((set, get) => ({
     }
 
     const updated = { ...current, ...changes };
+
+    // If degree is being updated, also update courses for that degree
+    if (changes.degree && changes.degree !== current.degree) {
+      const degreeInfo = DEGREES.find(d => d.name === changes.degree);
+      if (degreeInfo) {
+        updated.courses = degreeInfo.courses
+          .map(code => COURSES.find(c => c.code === code))
+          .filter(Boolean);
+      }
+    }
 
     // Save to localStorage
     const userProfiles = JSON.parse(localStorage.getItem('campus-sync-user-profiles') || '{}');

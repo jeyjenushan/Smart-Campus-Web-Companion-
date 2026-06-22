@@ -2,6 +2,7 @@ import { Camera, Save } from 'lucide-react';
 
 import { Avatar, Button, Input } from '@/components/ui';
 import { CustomSelect } from '@/components/ui/Select';
+import { DEGREES, COURSES } from '@/data/seedData';
 
 export function ProfileHeaderCard({
   profile,
@@ -14,6 +15,18 @@ export function ProfileHeaderCard({
   handleAvatarChange,
   cgpa,
 }) {
+  // Get current degree info
+  const currentDegree = DEGREES.find(d => d.name === profile.degree);
+  const degreeCourseCodes = currentDegree?.courses || [];
+  const degreeCourses = degreeCourseCodes
+    .map(code => COURSES.find(c => c.code === code))
+    .filter(Boolean);
+  
+  // Calculate current and completed courses for this degree
+  const currentCoursesCount = degreeCourses.length;
+  const completedCoursesCount = profile.completedCourses?.filter(cc =>
+    degreeCourseCodes.includes(cc.code)
+  ).length || 0;
   return (
     <div className="card p-5">
       <div className="flex items-center gap-4">
@@ -50,6 +63,11 @@ export function ProfileHeaderCard({
               <h2 className="text-lg font-bold text-ink">{profile.name}</h2>
               <p className="text-sm text-ink-muted">{profile.degree || 'Not set'}</p>
               <p className="text-xs text-ink-faint">{profile.faculty || 'Not set'}</p>
+              {currentDegree && (
+                <p className="text-xs text-brand-600 mt-1">
+                  {currentCoursesCount - completedCoursesCount} to {completedCoursesCount} courses
+                </p>
+              )}
             </>
           )}
         </div>
@@ -141,18 +159,37 @@ export function ProfileHeaderCard({
           <Input
             label="Faculty"
             type="text"
+            disabled
             placeholder="e.g., Faculty of Science"
             value={form.faculty}
-            onChange={e => setForm(f => ({ ...f, faculty: e.target.value }))}
+            className="opacity-75 cursor-not-allowed"
+            title="Faculty updates automatically when degree is selected"
           />
 
-          <Input
-            label="Degree"
-            type="text"
-            placeholder="e.g., BSc Honours in Software Engineering"
+          <CustomSelect
+            label="Degree Program"
             value={form.degree}
-            onChange={e => setForm(f => ({ ...f, degree: e.target.value }))}
+            onValueChange={value => {
+              const selectedDegree = DEGREES.find(d => d.name === value);
+              setForm(f => ({
+                ...f,
+                degree: value,
+                faculty: selectedDegree?.faculty || '',
+              }));
+            }}
+            options={DEGREES.map(d => ({
+              value: d.name,
+              label: d.name,
+            }))}
           />
+
+          {form.degree && DEGREES.find(d => d.name === form.degree) && (
+            <div className="bg-brand-50 dark:bg-brand-900/20 rounded-xl p-3 text-center border border-brand-200 dark:border-brand-800">
+              <p className="text-sm font-semibold text-brand-700 dark:text-brand-300">
+                {DEGREES.find(d => d.name === form.degree)?.courses.length} courses in this degree
+              </p>
+            </div>
+          )}
 
           <Button
             variant="primary"
