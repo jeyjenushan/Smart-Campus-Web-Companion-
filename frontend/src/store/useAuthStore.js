@@ -43,7 +43,7 @@ export const useAuthStore = create(
             throw new Error('Email already registered');
           }
 
-      // Create new user with profile initialization
+          // Create new user with profile initialization
           const newUser = {
             id: Date.now().toString(),
             email,
@@ -54,14 +54,14 @@ export const useAuthStore = create(
             createdAt: new Date().toISOString(),
           };
 
-          // Initialize profile data for new user
+          // Initialize profile data for new user - EMPTY for user to fill in
           const profileData = {
             userId: newUser.id,
             name,
             regNumber,
             avatar: newUser.avatar,
-            faculty: 'Faculty of Science',
-            degree: 'BSc Honours in Software Engineering',
+            faculty: '',
+            degree: '',
             year: 1,
             semester: 1,
             gpa: 0,
@@ -73,8 +73,6 @@ export const useAuthStore = create(
           };
 
           // Save user to localStorage
-          const existingUsers = localStorage.getItem('campus-sync-users');
-          const users = existingUsers ? JSON.parse(existingUsers) : [];
           users.push(newUser);
           localStorage.setItem('campus-sync-users', JSON.stringify(users));
 

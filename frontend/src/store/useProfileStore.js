@@ -25,14 +25,14 @@ export const useProfileStore = create((set, get) => ({
       if (userProfiles[user.id]) {
         p = userProfiles[user.id];
       } else {
-        // Create default profile if not exists
+        // Create default profile if not exists - EMPTY for user to fill in
         p = {
           userId: user.id,
           name: user.name,
           regNumber: user.regNumber,
           avatar: user.avatar,
-          faculty: 'Faculty of Science',
-          degree: 'BSc Honours in Software Engineering',
+          faculty: '',
+          degree: '',
           year: 1,
           semester: 1,
           gpa: 0,

@@ -52,8 +52,8 @@ export function useProfilePage() {
         gpa: profile.gpa ?? 0,
         completedCredits: profile.completedCredits ?? 0,
         totalCredits: profile.totalCredits ?? 120,
-        faculty: profile.faculty ?? 'Faculty of Science',
-        degree: profile.degree ?? 'BSc Honours in Software Engineering',
+        faculty: profile.faculty ?? '',
+        degree: profile.degree ?? '',
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

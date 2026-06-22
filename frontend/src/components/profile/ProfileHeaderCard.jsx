@@ -48,8 +48,8 @@ export function ProfileHeaderCard({
           ) : (
             <>
               <h2 className="text-lg font-bold text-ink">{profile.name}</h2>
-              <p className="text-sm text-ink-muted">{profile.degree}</p>
-              <p className="text-xs text-ink-faint">{profile.faculty}</p>
+              <p className="text-sm text-ink-muted">{profile.degree || 'Not set'}</p>
+              <p className="text-xs text-ink-faint">{profile.faculty || 'Not set'}</p>
             </>
           )}
         </div>
@@ -141,7 +141,7 @@ export function ProfileHeaderCard({
           <Input
             label="Faculty"
             type="text"
-            placeholder="Faculty of Science"
+            placeholder="e.g., Faculty of Science"
             value={form.faculty}
             onChange={e => setForm(f => ({ ...f, faculty: e.target.value }))}
           />
@@ -149,7 +149,7 @@ export function ProfileHeaderCard({
           <Input
             label="Degree"
             type="text"
-            placeholder="BSc Honours in Software Engineering"
+            placeholder="e.g., BSc Honours in Software Engineering"
             value={form.degree}
             onChange={e => setForm(f => ({ ...f, degree: e.target.value }))}
           />
