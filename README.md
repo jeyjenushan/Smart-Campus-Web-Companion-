@@ -1093,14 +1093,6 @@ npm run preview
 
 ---
 
-## 🧪 Testing & Quality Assurance
-
-### Code Linting
-```bash
-npm run lint      # Check for issues
-npm run lint:fix  # Auto-fix issues
-```
-
 
 ## 📚 Project Structure Reference
 
