@@ -64,9 +64,14 @@ export function ProfileHeaderCard({
               <p className="text-sm text-ink-muted">{profile.degree || 'Not set'}</p>
               <p className="text-xs text-ink-faint">{profile.faculty || 'Not set'}</p>
               {currentDegree && (
-                <p className="text-xs text-brand-600 mt-1">
-                  {currentCoursesCount - completedCoursesCount} to {completedCoursesCount} courses
-                </p>
+                <div className="flex gap-3 mt-2">
+                  <p className="text-xs bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 px-2 py-1 rounded-md">
+                    📚 {currentCoursesCount - completedCoursesCount} current
+                  </p>
+                  <p className="text-xs bg-success/10 text-success px-2 py-1 rounded-md">
+                    ✅ {completedCoursesCount} completed
+                  </p>
+                </div>
               )}
             </>
           )}
@@ -159,11 +164,9 @@ export function ProfileHeaderCard({
           <Input
             label="Faculty"
             type="text"
-            disabled
             placeholder="e.g., Faculty of Science"
             value={form.faculty}
-            className="opacity-75 cursor-not-allowed"
-            title="Faculty updates automatically when degree is selected"
+            onChange={e => setForm(f => ({ ...f, faculty: e.target.value }))}
           />
 
           <CustomSelect

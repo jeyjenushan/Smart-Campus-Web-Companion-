@@ -1,4 +1,4 @@
-import { Edit2, X } from 'lucide-react';
+import { Edit2, X, Lightbulb } from 'lucide-react';
 
 import { TopHeader } from '@/components/layout/TopHeader';
 import { Spinner } from '@/components/ui';
@@ -90,6 +90,22 @@ export default function ProfilePage() {
           progressPct={progressPct}
           semCredits={semCredits}
         />
+
+        {!editing && completedCourses.length === 0 && profile.degree && (
+          <div className="card p-4 bg-brand-50 dark:bg-brand-900/20 border border-brand-200 dark:border-brand-800">
+            <div className="flex gap-3">
+              <Lightbulb className="w-5 h-5 text-brand-600 dark:text-brand-400 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <h3 className="font-semibold text-brand-700 dark:text-brand-300 text-sm">
+                  Track Your Course Progress
+                </h3>
+                <p className="text-xs text-brand-600 dark:text-brand-300/80 mt-1">
+                  Click the circle icon next to a course to mark it as completed. Your GPA and progress will be calculated automatically.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         <CourseTabsCard
           profile={profile}
