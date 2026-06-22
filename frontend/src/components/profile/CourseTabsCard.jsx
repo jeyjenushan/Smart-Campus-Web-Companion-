@@ -92,7 +92,7 @@ export function CourseTabsCard({
         ))}
       </div>
 
-      <div className="p-4">
+      <div className="p-4 space-y-2">
         {tab === 'current' &&
           (profile.courses?.length ? (
             <>
@@ -118,21 +118,25 @@ export function CourseTabsCard({
           (degreeLevelCompletedCourses.length ? (
             <>
               <p className="text-xs text-ink-muted mb-3">
-                💡 Click the checkmark to mark a course as current again
+                ✅ Click the checkmark to mark a course as current again
               </p>
-              {degreeLevelCompletedCourses.map(course => (
-                <CourseRow 
-                  key={course.code} 
-                  course={course} 
-                  completed
-                  onToggleComplete={handleToggleComplete}
-                />
-              ))}
+              <div className="space-y-2">
+                {degreeLevelCompletedCourses.map(course => (
+                  <CourseRow 
+                    key={course.code} 
+                    course={course} 
+                    completed
+                    onToggleComplete={handleToggleComplete}
+                  />
+                ))}
+              </div>
 
-              <p className="text-xs text-ink-muted text-center mt-3 pt-3 border-t border-surface-border">
-                CGPA: <span className="font-bold text-ink">{cgpa}</span> over{' '}
-                {totalCreditsDone} credits
-              </p>
+              <div className="mt-5 pt-4 border-t border-surface-border rounded-lg bg-success/5 p-3">
+                <p className="text-xs text-ink-muted text-center">
+                  <span className="font-bold text-ink block text-sm">CGPA: {cgpa}</span>
+                  <span className="text-ink-faint">over {totalCreditsDone} credits</span>
+                </p>
+              </div>
             </>
           ) : (
             <p className="text-sm text-ink-muted text-center py-4">

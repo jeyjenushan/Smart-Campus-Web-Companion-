@@ -10,7 +10,11 @@ export function CourseRow({ course, completed, onToggleComplete }) {
   const gradePoint = GRADE_POINTS[course.grade] ?? 0;
 
   return (
-    <div className="flex items-center gap-3 py-2.5 border-b border-surface-border last:border-0">
+    <div className={`flex items-center gap-3 py-3 px-3 rounded-lg mb-2 border transition-all ${
+      completed 
+        ? 'bg-success/5 border-success/20' 
+        : 'border-surface-border hover:border-brand-200 dark:hover:border-brand-800'
+    }`}>
       {onToggleComplete && !completed && (
         <button
           type="button"
@@ -18,7 +22,7 @@ export function CourseRow({ course, completed, onToggleComplete }) {
           className="flex-shrink-0 text-ink-muted hover:text-brand-600 transition-colors"
           title="Mark as completed"
         >
-          <Circle className="w-4 h-4" />
+          <Circle className="w-5 h-5" />
         </button>
       )}
 
@@ -29,7 +33,7 @@ export function CourseRow({ course, completed, onToggleComplete }) {
           className="flex-shrink-0 text-success hover:text-danger transition-colors"
           title="Mark as not completed"
         >
-          <CheckCircle2 className="w-4 h-4" />
+          <CheckCircle2 className="w-5 h-5" />
         </button>
       )}
 
@@ -41,8 +45,18 @@ export function CourseRow({ course, completed, onToggleComplete }) {
       )}
 
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-ink truncate">{course.name}</p>
-        <p className="text-xs text-ink-muted">
+        <p className={`text-sm font-medium truncate transition-all ${
+          completed 
+            ? 'line-through text-ink-muted opacity-70' 
+            : 'text-ink'
+        }`}>
+          {course.name}
+        </p>
+        <p className={`text-xs transition-all ${
+          completed
+            ? 'line-through text-ink-faint opacity-60'
+            : 'text-ink-muted'
+        }`}>
           {course.code} · {course.credits} credits
         </p>
       </div>
