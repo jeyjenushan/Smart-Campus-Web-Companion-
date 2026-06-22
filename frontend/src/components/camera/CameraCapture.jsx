@@ -328,7 +328,7 @@ export function CameraCapture({ onCapture }) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <div className="relative rounded-2xl overflow-hidden bg-black aspect-video">
         <video
           ref={videoRef}
