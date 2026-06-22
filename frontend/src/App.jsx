@@ -29,23 +29,6 @@ export default function App() {
   // Initialize theme from localStorage on app start
   useThemeInitializer();
 
-  // Initialize demo user on first load
-  useEffect(() => {
-    const users = localStorage.getItem('campus-sync-users');
-    if (!users) {
-      const demoUser = {
-        id: '1',
-        email: 'demo@university.edu',
-        password: 'demo123',
-        name: 'Demo Student',
-        regNumber: 'DEM001',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Demo',
-        createdAt: new Date().toISOString(),
-      };
-      localStorage.setItem('campus-sync-users', JSON.stringify([demoUser]));
-    }
-  }, []);
-
   return (
     <ErrorBoundary>
       <BrowserRouter>

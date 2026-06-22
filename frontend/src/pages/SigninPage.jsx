@@ -52,13 +52,7 @@ export default function SigninPage() {
     }
   };
 
-  const handleDemoSignin = async () => {
-    const success = await signin('demo@university.edu', 'demo123');
-    if (success) {
-      toast.success('Demo account signed in!');
-      navigate('/');
-    }
-  };
+
 
   return (
     <div className="min-h-dvh bg-surface dark:bg-surface flex flex-col items-center justify-center px-4 py-8">
@@ -126,28 +120,6 @@ export default function SigninPage() {
               Sign up
             </Link>
           </p>
-        </div>
-
-        {/* Demo Button */}
-        <Button
-          type="button"
-          variant="secondary"
-          size="md"
-          onClick={handleDemoSignin}
-          className="w-full"
-        >
-          Demo Sign In
-        </Button>
-
-        {/* Demo Info */}
-        <div className="p-3 bg-brand-50 dark:bg-brand-900/20 border border-brand-200 dark:border-brand-800 rounded-lg space-y-2">
-          <p className="text-xs font-medium text-brand-700 dark:text-brand-400">
-            📌 Demo Credentials:
-          </p>
-          <div className="text-xs text-brand-600 dark:text-brand-500 space-y-1">
-            <p><strong>Email:</strong> demo@university.edu</p>
-            <p><strong>Password:</strong> demo123</p>
-          </div>
         </div>
       </div>
     </div>

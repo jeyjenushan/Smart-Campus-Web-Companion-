@@ -128,17 +128,15 @@ This project implements **Track A: Smart Campus Web Companion** as per the SENG 
   - Zustand-based authentication state management
   - Protected routes that redirect unauthenticated users to signin
   - User account creation with email, password, name, and registration number
-  - User persistence in localStorage (demo mode)
+  - User persistence in localStorage
   - Session recovery on page reload
   - Signout button in header for easy logout
-  - Demo account pre-configured for testing (demo@university.edu / demo123)
   - Form validation with real-time error feedback
   - Loading states during authentication
   - Dark mode support on auth pages
 - **Features**:
   - **Sign Up**: Create new user account with validation
   - **Sign In**: Authenticate existing users
-  - **Demo Sign In**: Quick access button for testing
   - **Sign Out**: Secure logout from header
   - **Protected Routes**: Automatic redirect to signin for unauthenticated users
   - **Session Persistence**: User stays logged in across page reloads
@@ -1007,7 +1005,7 @@ if ('serviceWorker' in navigator) {
 
 #### Implementation Architecture:
 
-The authentication system follows a simple, localStorage-based approach suitable for a demo application:
+The authentication system follows a simple, localStorage-based approach for development:
 
 **1. Authentication Store** (`src/store/useAuthStore.js`):
 ```javascript
@@ -1351,22 +1349,6 @@ import { useAuthStore } from '@/store/useAuthStore';
 export default function App() {
   useThemeInitializer();
 
-  // Initialize demo user on first load
-  useEffect(() => {
-    const users = localStorage.getItem('campus-sync-users');
-    if (!users) {
-      const demoUser = {
-        id: '1',
-        email: 'demo@university.edu',
-        password: 'demo123',
-        name: 'Demo Student',
-        regNumber: 'DEM001',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Demo',
-      };
-      localStorage.setItem('campus-sync-users', JSON.stringify([demoUser]));
-    }
-  }, []);
-
   return (
     <BrowserRouter>
       <Routes>
@@ -1440,15 +1422,9 @@ User Input (Email/Password)
   User redirected to dashboard
 ```
 
-#### Demo Credentials:
-- **Email**: `demo@university.edu`
-- **Password**: `demo123`
-
-These credentials are automatically created on first app load for testing purposes.
-
 #### Security Notes (for Production):
 
-⚠️ **Current Implementation** is demo-only. For production:
+⚠️ **Current Implementation** uses localStorage. For production:
 
 1. **Passwords**: Hash with bcrypt, never store plaintext
    ```javascript
