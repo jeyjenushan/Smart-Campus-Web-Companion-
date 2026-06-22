@@ -46,14 +46,14 @@ export function CourseRow({ course, completed, onToggleComplete }) {
 
       <div className="flex-1 min-w-0">
         <p className={`text-sm font-medium truncate transition-all ${
-          completed 
+          !completed 
             ? 'line-through text-ink-muted opacity-70' 
             : 'text-ink'
         }`}>
           {course.name}
         </p>
         <p className={`text-xs transition-all ${
-          completed
+          !completed
             ? 'line-through text-ink-faint opacity-60'
             : 'text-ink-muted'
         }`}>
