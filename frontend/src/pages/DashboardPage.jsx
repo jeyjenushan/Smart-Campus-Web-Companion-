@@ -43,7 +43,7 @@ export default function DashboardPage() {
   } = useAnnouncements();
 
   return (
-    <div className="animate-in">
+    <div className="animate-in pt-14">
       <TopHeader
         actions={
           !onlineStatus && (

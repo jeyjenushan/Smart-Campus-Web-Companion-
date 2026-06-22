@@ -115,6 +115,35 @@ This project implements **Track A: Smart Campus Web Companion** as per the SENG 
   - Works offline and persists across sessions
 - **Files**: `src/store/useThemeStore.js`, `src/components/layout/ThemeToggle.jsx`, `src/index.css`
 
+#### 8. **User Authentication & Account Management**
+- **Purpose**: Track which user is accessing the application and maintain separate user profiles
+- **Why Implemented**:
+  - Enables user-specific data tracking and personalization
+  - Allows multiple users to use the same device independently
+  - Provides session management for data privacy
+  - Foundation for future backend integration
+  - User identification for analytics and progress tracking
+- **Implementation Details**:
+  - Simple signup and signin pages with form validation
+  - Zustand-based authentication state management
+  - Protected routes that redirect unauthenticated users to signin
+  - User account creation with email, password, name, and registration number
+  - User persistence in localStorage (demo mode)
+  - Session recovery on page reload
+  - Signout button in header for easy logout
+  - Demo account pre-configured for testing (demo@university.edu / demo123)
+  - Form validation with real-time error feedback
+  - Loading states during authentication
+  - Dark mode support on auth pages
+- **Features**:
+  - **Sign Up**: Create new user account with validation
+  - **Sign In**: Authenticate existing users
+  - **Demo Sign In**: Quick access button for testing
+  - **Sign Out**: Secure logout from header
+  - **Protected Routes**: Automatic redirect to signin for unauthenticated users
+  - **Session Persistence**: User stays logged in across page reloads
+- **Files**: `src/pages/SignupPage.jsx`, `src/pages/SigninPage.jsx`, `src/store/useAuthStore.js`, `src/components/layout/ProtectedRoute.jsx`
+
 ---
 
 ## 🏗️ Architecture Model
@@ -966,6 +995,494 @@ if ('serviceWorker' in navigator) {
   });
 }
 ```
+
+### Advanced Feature 2: User Authentication & Account Management
+
+#### Why Implemented:
+- Track which user is accessing the application
+- Maintain separate user profiles per user
+- Enable session management for data privacy
+- Foundation for future backend integration
+- User identification for analytics and progress tracking
+
+#### Implementation Architecture:
+
+The authentication system follows a simple, localStorage-based approach suitable for a demo application:
+
+**1. Authentication Store** (`src/store/useAuthStore.js`):
+```javascript
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+
+export const useAuthStore = create(
+  persist(
+    (set) => ({
+      user: null,
+      isAuthenticated: false,
+      loading: false,
+      error: null,
+
+      // Sign up new user
+      signup: async (email, password, name, regNumber) => {
+        set({ loading: true, error: null });
+        try {
+          // Validate inputs
+          if (password.length < 6) {
+            throw new Error('Password must be at least 6 characters');
+          }
+
+          // Check if user exists
+          const users = JSON.parse(localStorage.getItem('campus-sync-users') || '[]');
+          if (users.some(u => u.email === email)) {
+            throw new Error('Email already registered');
+          }
+
+          // Create new user
+          const newUser = {
+            id: Date.now().toString(),
+            email,
+            password, // In production: hash this with bcrypt!
+            name,
+            regNumber,
+            avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`,
+            createdAt: new Date().toISOString(),
+          };
+
+          users.push(newUser);
+          localStorage.setItem('campus-sync-users', JSON.stringify(users));
+
+          // Log in user
+          const { password: _, ...userWithoutPassword } = newUser;
+          set({
+            user: userWithoutPassword,
+            isAuthenticated: true,
+            loading: false,
+          });
+
+          return true;
+        } catch (err) {
+          set({ loading: false, error: err.message });
+          return false;
+        }
+      },
+
+      // Sign in existing user
+      signin: async (email, password) => {
+        set({ loading: true, error: null });
+        try {
+          // Find user with credentials
+          const users = JSON.parse(localStorage.getItem('campus-sync-users') || '[]');
+          const user = users.find(u => u.email === email && u.password === password);
+
+          if (!user) {
+            throw new Error('Invalid email or password');
+          }
+
+          // Remove password from stored user
+          const { password: _, ...userWithoutPassword } = user;
+          set({
+            user: userWithoutPassword,
+            isAuthenticated: true,
+            loading: false,
+          });
+
+          return true;
+        } catch (err) {
+          set({ loading: false, error: err.message });
+          return false;
+        }
+      },
+
+      // Sign out
+      signout: () => {
+        set({ user: null, isAuthenticated: false });
+      },
+    }),
+    {
+      name: 'campus-sync-auth',
+      partialize: (state) => ({
+        user: state.user,
+        isAuthenticated: state.isAuthenticated,
+      }),
+    }
+  )
+);
+```
+
+**Features**:
+- Zustand store with localStorage persistence
+- User data persisted with `persist` middleware
+- Session recovery on page reload
+- Error handling and validation
+- Loading states during async operations
+
+**2. Protected Route Component** (`src/components/layout/ProtectedRoute.jsx`):
+```javascript
+import { Navigate } from 'react-router-dom';
+import { useAuthStore } from '@/store/useAuthStore';
+
+export function ProtectedRoute({ children }) {
+  const isAuthenticated = useAuthStore(s => s.isAuthenticated);
+
+  if (!isAuthenticated) {
+    return <Navigate to="/signin" replace />;
+  }
+
+  return children;
+}
+```
+
+**Usage in Routes**:
+```javascript
+// App.jsx
+<Route
+  element={
+    <ProtectedRoute>
+      <AppLayout />
+    </ProtectedRoute>
+  }
+>
+  <Route path="/" element={<DashboardPage />} />
+  <Route path="/assignments" element={<AssignmentsPage />} />
+  {/* ... other protected routes */}
+</Route>
+```
+
+**3. Sign In Page** (`src/pages/SigninPage.jsx`):
+```javascript
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Button, Input } from '@/components/ui';
+import { useAuthStore } from '@/store/useAuthStore';
+
+export default function SigninPage() {
+  const navigate = useNavigate();
+  const signin = useAuthStore(s => s.signin);
+  const [form, setForm] = useState({ email: '', password: '' });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const success = await signin(form.email, form.password);
+    if (success) {
+      navigate('/');
+    }
+  };
+
+  return (
+    <div className="min-h-dvh flex flex-col items-center justify-center px-4">
+      <div className="w-full max-w-sm space-y-6">
+        {/* Logo */}
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-ink dark:text-slate-100">
+            CampusSync
+          </h1>
+          <p className="text-sm text-ink-muted dark:text-slate-400">
+            Sign in to your account
+          </p>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Input
+            label="Email"
+            type="email"
+            placeholder="john@university.edu"
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
+          />
+
+          <Input
+            label="Password"
+            type="password"
+            placeholder="••••••••"
+            value={form.password}
+            onChange={(e) => setForm({ ...form, password: e.target.value })}
+          />
+
+          <Button type="submit" variant="primary" size="md" className="w-full">
+            Sign In
+          </Button>
+        </form>
+
+        {/* Sign Up Link */}
+        <div className="text-center text-sm">
+          <p className="text-ink-muted dark:text-slate-400">
+            Don't have an account?{' '}
+            <Link to="/signup" className="text-brand-600 font-semibold">
+              Sign up
+            </Link>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+```
+
+**4. Sign Up Page** (`src/pages/SignupPage.jsx`):
+```javascript
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Button, Input } from '@/components/ui';
+import { useAuthStore } from '@/store/useAuthStore';
+
+export default function SignupPage() {
+  const navigate = useNavigate();
+  const signup = useAuthStore(s => s.signup);
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    regNumber: '',
+    password: '',
+    confirmPassword: '',
+  });
+  const [errors, setErrors] = useState({});
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Validate
+    const newErrors = {};
+    if (!form.name) newErrors.name = 'Name required';
+    if (form.password !== form.confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match';
+    }
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    // Sign up
+    const success = await signup(
+      form.email,
+      form.password,
+      form.name,
+      form.regNumber
+    );
+
+    if (success) {
+      navigate('/');
+    }
+  };
+
+  return (
+    <div className="min-h-dvh flex flex-col items-center justify-center px-4">
+      <div className="w-full max-w-sm space-y-6">
+        {/* Logo */}
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-ink dark:text-slate-100">
+            CampusSync
+          </h1>
+          <p className="text-sm text-ink-muted dark:text-slate-400">
+            Create an account to get started
+          </p>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Input
+            label="Full Name"
+            type="text"
+            placeholder="John Doe"
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+            error={errors.name}
+          />
+
+          <Input
+            label="Email"
+            type="email"
+            placeholder="john@university.edu"
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
+          />
+
+          <Input
+            label="Registration Number"
+            type="text"
+            placeholder="REG123456"
+            value={form.regNumber}
+            onChange={(e) => setForm({ ...form, regNumber: e.target.value })}
+          />
+
+          <Input
+            label="Password"
+            type="password"
+            placeholder="••••••••"
+            value={form.password}
+            onChange={(e) => setForm({ ...form, password: e.target.value })}
+            helper="At least 6 characters"
+          />
+
+          <Input
+            label="Confirm Password"
+            type="password"
+            placeholder="••••••••"
+            value={form.confirmPassword}
+            onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
+            error={errors.confirmPassword}
+          />
+
+          <Button type="submit" variant="primary" size="md" className="w-full">
+            Create Account
+          </Button>
+        </form>
+
+        {/* Sign In Link */}
+        <div className="text-center text-sm">
+          <p className="text-ink-muted dark:text-slate-400">
+            Already have an account?{' '}
+            <Link to="/signin" className="text-brand-600 font-semibold">
+              Sign in
+            </Link>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+```
+
+**5. Updated App.jsx with Auth Routes**:
+```javascript
+import { useEffect } from 'react';
+import { useAuthStore } from '@/store/useAuthStore';
+
+export default function App() {
+  useThemeInitializer();
+
+  // Initialize demo user on first load
+  useEffect(() => {
+    const users = localStorage.getItem('campus-sync-users');
+    if (!users) {
+      const demoUser = {
+        id: '1',
+        email: 'demo@university.edu',
+        password: 'demo123',
+        name: 'Demo Student',
+        regNumber: 'DEM001',
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Demo',
+      };
+      localStorage.setItem('campus-sync-users', JSON.stringify([demoUser]));
+    }
+  }, []);
+
+  return (
+    <BrowserRouter>
+      <Routes>
+        {/* Public auth routes */}
+        <Route path="/signin" element={<SigninPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+
+        {/* Protected app routes */}
+        <Route
+          element={
+            <ProtectedRoute>
+              <AppLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="/" element={<DashboardPage />} />
+          <Route path="/assignments" element={<AssignmentsPage />} />
+          <Route path="/camera" element={<CameraPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+        </Route>
+
+        {/* 404 */}
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+```
+
+**6. Sign Out Button in Header**:
+```javascript
+// src/components/layout/TopHeader.jsx
+import { LogOut } from 'lucide-react';
+import { useAuthStore } from '@/store/useAuthStore';
+
+export function TopHeader() {
+  const navigate = useNavigate();
+  const signout = useAuthStore(s => s.signout);
+
+  const handleSignout = () => {
+    signout();
+    navigate('/signin');
+  };
+
+  return (
+    <header>
+      {/* ... header content ... */}
+      <button onClick={handleSignout} title="Sign out">
+        <LogOut className="w-5 h-5" />
+      </button>
+    </header>
+  );
+}
+```
+
+#### Data Flow:
+
+```
+User Input (Email/Password)
+          ↓
+        Form Validation
+          ↓
+    useAuthStore.signin() / signup()
+          ↓
+  localStorage lookup/write
+          ↓
+  Store updates (user, isAuthenticated)
+          ↓
+   Components re-render
+          ↓
+  User redirected to dashboard
+```
+
+#### Demo Credentials:
+- **Email**: `demo@university.edu`
+- **Password**: `demo123`
+
+These credentials are automatically created on first app load for testing purposes.
+
+#### Security Notes (for Production):
+
+⚠️ **Current Implementation** is demo-only. For production:
+
+1. **Passwords**: Hash with bcrypt, never store plaintext
+   ```javascript
+   import bcrypt from 'bcrypt';
+   const hashedPassword = await bcrypt.hash(password, 10);
+   ```
+
+2. **Backend**: Move auth logic to secure backend server
+   ```javascript
+   const response = await fetch('https://api.campus-sync.com/auth/signin', {
+     method: 'POST',
+     body: JSON.stringify({ email, password }),
+   });
+   ```
+
+3. **Tokens**: Use JWT for session management
+   ```javascript
+   const token = response.data.token;
+   localStorage.setItem('auth-token', token);
+   // Include in all API requests
+   ```
+
+4. **HTTPS Only**: Ensure all auth requests use HTTPS
+5. **Session Expiry**: Implement automatic logout after timeout
+6. **Rate Limiting**: Prevent brute force attacks on login
+
+#### Files:
+- `src/pages/SigninPage.jsx` - Sign in UI
+- `src/pages/SignupPage.jsx` - Sign up UI
+- `src/store/useAuthStore.js` - Auth state management
+- `src/components/layout/ProtectedRoute.jsx` - Route protection
+- `src/components/layout/TopHeader.jsx` - Sign out button
+
+---
 
 ### Advanced Feature 3: Progressive Web App (PWA) Capabilities
 

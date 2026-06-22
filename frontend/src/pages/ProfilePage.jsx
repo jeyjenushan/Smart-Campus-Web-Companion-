@@ -49,7 +49,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="animate-in">
+    <div className="animate-in pt-14">
       <TopHeader
         title="My Profile"
         subtitle={profile.regNumber}

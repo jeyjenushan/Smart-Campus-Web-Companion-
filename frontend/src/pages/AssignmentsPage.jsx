@@ -41,7 +41,7 @@ export default function AssignmentsPage() {
   } = useAssignmentsPage();
 
   return (
-    <div className="animate-in">
+    <div className="animate-in pt-14">
       <TopHeader
         title="Assignments"
         subtitle={`${stats.pending} pending · ${stats.completed} done`}

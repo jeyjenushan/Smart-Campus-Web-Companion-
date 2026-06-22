@@ -91,7 +91,7 @@ export default function CameraPage() {
   }
 
   return (
-    <div className="animate-in">
+    <div className="animate-in pt-14">
       {/* Mobile native camera input - works on iOS and Android */}
       <input
         ref={nativeCameraRef}
