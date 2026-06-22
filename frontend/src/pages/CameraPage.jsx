@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Camera, CameraOff, Image } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -14,10 +14,28 @@ import { useCameraNotes } from '@/hooks/camera/useCameraNotes';
 import { useCameraSupport } from '@/hooks/camera/useCameraSupport';
 import { useIsMobileDevice } from '@/hooks/camera/useMobileDevice';
 
+function isIOS() {
+  if (typeof navigator === 'undefined') return false;
+
+  return (
+    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+  );
+}
+
+function isAndroid() {
+  if (typeof navigator === 'undefined') return false;
+  return /Android/.test(navigator.userAgent);
+}
+
 export default function CameraPage() {
   const hasCameraAPI = useCameraSupport();
   const isMobile = useIsMobileDevice();
-  const nativeCameraRef = useRef(null);
+
+  const androidInputRef = useRef(null);
+  const iosCameraInputRef = useRef(null);
+
+  const [platform, setPlatform] = useState('other');
 
   const {
     notes,
@@ -36,10 +54,23 @@ export default function CameraPage() {
     downloadNote,
   } = useCameraNotes();
 
+  useEffect(() => {
+    if (isIOS()) setPlatform('ios');
+    else if (isAndroid()) setPlatform('android');
+    else setPlatform('other');
+  }, []);
+
   function openCapture() {
     if (isMobile) {
-      nativeCameraRef.current?.click();
-      return;
+      if (platform === 'android') {
+        androidInputRef.current?.click();
+        return;
+      }
+
+      if (platform === 'ios') {
+        iosCameraInputRef.current?.click();
+        return;
+      }
     }
 
     setShowCamera(true);
@@ -79,8 +110,18 @@ export default function CameraPage() {
 
   return (
     <div className="animate-in">
+      {/* Android: old project behavior - no capture attribute */}
       <input
-        ref={nativeCameraRef}
+        ref={androidInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleNativeCapture}
+      />
+
+      {/* iOS: old project behavior - capture environment */}
+      <input
+        ref={iosCameraInputRef}
         type="file"
         accept="image/*"
         capture="environment"
