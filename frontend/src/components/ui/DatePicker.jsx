@@ -79,7 +79,7 @@ export function CustomDatePicker({ label, value, onChange, error, min }) {
       <button
         type="button"
         onClick={handleToggle}
-        className="w-full min-h-[48px] px-4 rounded-xl border border-surface-border bg-white text-left text-sm text-ink flex items-center justify-between"
+        className="w-full min-h-[48px] px-4 rounded-xl border border-surface-border bg-white dark:bg-slate-800 text-left text-sm text-ink dark:text-slate-100 flex items-center justify-between transition-colors"
       >
         <span className={cn(!selectedDate && 'text-ink-faint')}>
           {selectedDate ? format(selectedDate, 'MMM d, yyyy') : 'Select date'}
@@ -88,24 +88,24 @@ export function CustomDatePicker({ label, value, onChange, error, min }) {
       </button>
 
       {open && (
-        <div className="absolute left-0 top-full  mt-2 w-[280px] max-w-[calc(100vw-3rem)] rounded-2xl border border-surface-border bg-white p-3 shadow-xl">
+        <div className="absolute left-0 top-full  mt-2 w-[280px] max-w-[calc(100vw-3rem)] rounded-2xl border border-surface-border dark:border-slate-700 bg-white dark:bg-slate-800 p-3 shadow-xl transition-colors">
           <div className="flex items-center justify-between mb-3 ">
             <button
               type="button"
               onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
-              className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-muted transition-colors"
+              className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-ink dark:text-slate-100 transition-colors"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
 
-            <p className="text-sm font-bold text-ink">
+            <p className="text-sm font-bold text-ink dark:text-slate-100">
               {format(currentMonth, 'MMMM yyyy')}
             </p>
 
             <button
               type="button"
               onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
-              className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-muted transition-colors"
+              className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-ink dark:text-slate-100 transition-colors"
             >
               <ChevronRight className="w-5 h-5" />
             </button>
@@ -113,7 +113,7 @@ export function CustomDatePicker({ label, value, onChange, error, min }) {
 
           <div className="grid grid-cols-7 gap-1 text-center mb-1">
             {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(d => (
-              <div key={d} className="text-[11px] font-semibold text-ink-muted py-1">
+              <div key={d} className="text-[11px] font-semibold text-ink-muted dark:text-slate-400 py-1">
                 {d}
               </div>
             ))}
@@ -132,9 +132,9 @@ export function CustomDatePicker({ label, value, onChange, error, min }) {
                   disabled={disabled}
                   onClick={() => selectDate(date)}
                   className={cn(
-                    'h-8 w-8 rounded-lg text-xs flex items-center justify-center transition-colors',
-                    'hover:bg-surface-muted',
-                    muted    && 'text-ink-faint',
+                    'h-8 w-8 rounded-lg text-xs flex items-center justify-center transition-colors text-ink dark:text-slate-100',
+                    'hover:bg-slate-100 dark:hover:bg-slate-700',
+                    muted    && 'text-ink-faint dark:text-slate-500',
                     disabled && 'opacity-30 cursor-not-allowed hover:bg-transparent',
                     selected && 'bg-brand-600 text-white hover:bg-brand-700'
                   )}
@@ -147,7 +147,7 @@ export function CustomDatePicker({ label, value, onChange, error, min }) {
         </div>
       )}
 
-      {error && <p className="text-xs text-danger mt-1">{error}</p>}
+      {error && <p className="text-xs text-danger dark:text-red-400 mt-1">{error}</p>}
     </div>
   );
 }

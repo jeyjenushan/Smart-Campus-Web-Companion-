@@ -45,10 +45,12 @@ export function CustomSelect({ label, value, onValueChange, options }) {
             px-4
             rounded-xl
             border border-surface-border
-            bg-white
+            bg-white dark:bg-slate-800
+            text-ink dark:text-slate-100
             text-sm
             font-normal
             flex items-center justify-between
+            transition-colors
           "
         >
           <Select.Value placeholder="Select..." />
@@ -68,10 +70,11 @@ export function CustomSelect({ label, value, onValueChange, options }) {
               z-[9999]
               w-[var(--radix-select-trigger-width)]
               rounded-2xl
-              border border-surface-border
-              bg-white
+              border border-surface-border dark:border-slate-700
+              bg-white dark:bg-slate-800
               shadow-xl
               overflow-hidden
+              transition-colors
             "
           >
             <Select.Viewport
@@ -97,12 +100,13 @@ export function CustomSelect({ label, value, onValueChange, options }) {
                       px-4
                       cursor-pointer
                       outline-none
-                      data-[highlighted]:bg-slate-100
-                      data-[state=checked]:bg-slate-100
+                      data-[highlighted]:bg-slate-100 dark:data-[highlighted]:bg-slate-700
+                      data-[state=checked]:bg-slate-100 dark:data-[state=checked]:bg-slate-700
+                      transition-colors
                     "
                   >
                     <Select.ItemText>
-                      <span className="text-sm font-normal text-ink leading-5">
+                      <span className="text-sm font-normal text-ink dark:text-slate-100 leading-5">
                         {option.label}
                       </span>
                     </Select.ItemText>
