@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { Camera, CameraOff, Check, FlipHorizontal, RotateCcw } from 'lucide-react';
+import { Camera as CameraIcon, CameraOff, Check, FlipHorizontal, RotateCcw } from 'lucide-react';
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import toast from 'react-hot-toast';
 
 import { Button, Input, Spinner } from '@/components/ui';
@@ -19,7 +20,6 @@ export function CameraCapture({ onCapture }) {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
-  const nativeCameraRef = useRef(null);
 
   const [ready, setReady] = useState(false);
   const [camError, setCamError] = useState(null);
@@ -57,16 +57,7 @@ export function CameraCapture({ onCapture }) {
           videoRef.current.onloadedmetadata = () => setReady(true);
         }
       } catch (err) {
-        const msg =
-          err.name === 'NotAllowedError'
-            ? 'Camera permission denied. Enable it in browser settings.'
-            : err.name === 'NotFoundError'
-              ? 'No camera found on this device.'
-              : err.name === 'NotReadableError'
-                ? 'Camera is being used by another app.'
-                : `Camera error: ${err.message}`;
-
-        setCamError(msg);
+        setCamError(`Camera error: ${err.message}`);
       }
     },
     [stopStream]
@@ -79,32 +70,22 @@ export function CameraCapture({ onCapture }) {
     return stopStream;
   }, [isMobile, startCamera, stopStream]);
 
-  function openNativeCamera() {
-    nativeCameraRef.current?.click();
-  }
+  async function openNativeCamera() {
+    try {
+      const photo = await Camera.getPhoto({
+        quality: 85,
+        allowEditing: false,
+        resultType: CameraResultType.DataUrl,
+        source: CameraSource.Camera,
+      });
 
-  function handleNativeCapture(e) {
-    const file = e.target.files?.[0];
-    e.target.value = '';
-
-    if (!file) return;
-
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please capture an image.');
-      return;
+      if (photo.dataUrl) {
+        setCaptured(photo.dataUrl);
+      }
+    } catch (err) {
+      if (err.message?.includes('cancelled')) return;
+      toast.error('Camera capture cancelled or failed');
     }
-
-    const reader = new FileReader();
-
-    reader.onload = () => {
-      setCaptured(reader.result);
-    };
-
-    reader.onerror = () => {
-      toast.error('Could not read captured image.');
-    };
-
-    reader.readAsDataURL(file);
   }
 
   function flipCamera() {
@@ -170,17 +151,6 @@ export function CameraCapture({ onCapture }) {
     }
   }
 
-  const nativeCameraInput = (
-    <input
-      ref={nativeCameraRef}
-      type="file"
-      accept="image/*"
-      capture="environment"
-      className="hidden"
-      onChange={handleNativeCapture}
-    />
-  );
-
   if (captured) {
     return (
       <div className="space-y-3 px-0.5">
@@ -220,8 +190,6 @@ export function CameraCapture({ onCapture }) {
             Save Note
           </Button>
         </div>
-
-        {isMobile && nativeCameraInput}
       </div>
     );
   }
@@ -230,7 +198,7 @@ export function CameraCapture({ onCapture }) {
     return (
       <div className="space-y-4">
         <div className="rounded-2xl bg-ink/5 border border-ink/10 p-8 text-center">
-          <Camera className="w-10 h-10 text-brand-600 mx-auto mb-3" />
+          <CameraIcon className="w-10 h-10 text-brand-600 mx-auto mb-3" />
 
           <p className="text-sm font-semibold text-ink">
             Ready to capture
@@ -241,8 +209,6 @@ export function CameraCapture({ onCapture }) {
           </p>
         </div>
 
-        {nativeCameraInput}
-
         <div className="flex justify-center">
           <button
             type="button"
@@ -251,7 +217,7 @@ export function CameraCapture({ onCapture }) {
             aria-label="Open camera"
           >
             <div className="w-full h-full rounded-full bg-brand-600 flex items-center justify-center">
-              <Camera className="w-7 h-7 text-white" />
+              <CameraIcon className="w-7 h-7 text-white" />
             </div>
           </button>
         </div>
@@ -268,13 +234,7 @@ export function CameraCapture({ onCapture }) {
       <div className="rounded-2xl bg-danger/10 border border-danger/30 p-6 text-center">
         <CameraOff className="w-10 h-10 text-danger mx-auto mb-3" />
 
-        <p className="text-sm font-semibold text-danger">
-          {camError}
-        </p>
-
-        <p className="text-xs text-ink-muted mt-1">
-          Check browser permissions and try again
-        </p>
+        <p className="text-sm font-semibold text-danger">{camError}</p>
 
         <Button
           variant="secondary"
@@ -331,14 +291,10 @@ export function CameraCapture({ onCapture }) {
           aria-label="Capture photo"
         >
           <div className="w-full h-full rounded-full bg-brand-600 flex items-center justify-center">
-            <Camera className="w-7 h-7 text-white" />
+            <CameraIcon className="w-7 h-7 text-white" />
           </div>
         </button>
       </div>
-
-      <p className="text-xs text-ink-faint text-center">
-        Point camera at handwritten notes and tap to capture
-      </p>
     </div>
   );
 }
