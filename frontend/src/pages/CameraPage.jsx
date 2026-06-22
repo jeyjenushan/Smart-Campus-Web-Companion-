@@ -97,9 +97,14 @@ export default function CameraPage() {
         )}
       </div>
 
-
+      <Modal
+        open={showCamera}
+        onClose={() => setShowCamera(false)}
+        title="Capture Lecture Note"
+        description="Point your camera at handwritten notes"
+      >
         <CameraCapture onCapture={handleCapture} />
-   
+      </Modal>
 
       <CameraViewModal
         note={viewNote}
