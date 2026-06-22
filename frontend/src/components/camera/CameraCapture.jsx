@@ -7,12 +7,23 @@ import { CustomSelect } from '@/components/ui/Select';
 import { COURSES } from '@/data/seedData';
 import { cn } from '@/lib/cn';
 import { useIsMobileDevice } from '../../hooks/camera/useMobileDevice';
-
-
 const COURSE_OPTS = [
   { value: '', label: 'Select course…' },
   ...COURSES.map(c => ({ value: c.code, label: c.code })),
 ];
+
+const isIOS = () => {
+  if (typeof navigator === 'undefined') return false;
+  return (
+    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+  );
+};
+
+const isAndroid = () => {
+  if (typeof navigator === 'undefined') return false;
+  return /Android/.test(navigator.userAgent);
+};
 
 export function CameraCapture({ onCapture }) {
   const isMobile = useIsMobileDevice();
@@ -20,7 +31,10 @@ export function CameraCapture({ onCapture }) {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
-  const fileInputRef = useRef(null);
+
+
+  const androidCameraRef = useRef(null);
+  const iosCameraRef = useRef(null);
 
   const [ready, setReady] = useState(false);
   const [camError, setCamError] = useState(null);
@@ -29,6 +43,13 @@ export function CameraCapture({ onCapture }) {
   const [course, setCourse] = useState('');
   const [noteText, setNoteText] = useState('');
   const [saving, setSaving] = useState(false);
+  const [platform, setPlatform] = useState('other'); 
+
+  useEffect(() => {
+    if (isIOS()) setPlatform('ios');
+    else if (isAndroid()) setPlatform('android');
+    else setPlatform('other');
+  }, []);
 
   const stopStream = useCallback(() => {
     streamRef.current?.getTracks().forEach(t => t.stop());
@@ -73,6 +94,7 @@ export function CameraCapture({ onCapture }) {
     [stopStream]
   );
 
+
   useEffect(() => {
     if (isMobile) return;
 
@@ -108,12 +130,21 @@ export function CameraCapture({ onCapture }) {
     stopStream();
   }
 
+
   function openNativeCamera() {
-    fileInputRef.current?.click();
+    if (platform === 'android') {
+      androidCameraRef.current?.click();
+    } else if (platform === 'ios') {
+      iosCameraRef.current?.click();
+    } else {
+
+      androidCameraRef.current?.click();
+    }
   }
 
   function handleNativeFile(e) {
     const file = e.target.files?.[0];
+
     e.target.value = '';
 
     if (!file) return;
@@ -162,7 +193,28 @@ export function CameraCapture({ onCapture }) {
     }
   }
 
+  const nativeCameraInputs = (
+    <>
+      <input
+        ref={androidCameraRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        onChange={handleNativeFile}
+        className="hidden"
+      />
+      <input
+        ref={iosCameraRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        onChange={handleNativeFile}
+        className="hidden"
+      />
+    </>
+  );
 
+  // --- Shared review screen (works identically for both capture paths) ---
   if (captured) {
     return (
       <div className="space-y-3 px-0.5">
@@ -205,17 +257,7 @@ export function CameraCapture({ onCapture }) {
           </Button>
         </div>
 
-        {/* Keep the input mounted so "Retake" on mobile can reuse it */}
-        {isMobile && (
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            capture="environment"
-            onChange={handleNativeFile}
-            className="hidden"
-          />
-        )}
+        {isMobile && nativeCameraInputs}
       </div>
     );
   }
@@ -234,14 +276,7 @@ export function CameraCapture({ onCapture }) {
           </p>
         </div>
 
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          capture="environment"
-          onChange={handleNativeFile}
-          className="hidden"
-        />
+        {nativeCameraInputs}
 
         <div className="flex justify-center">
           <button
