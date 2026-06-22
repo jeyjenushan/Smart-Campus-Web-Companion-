@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-
 import { useNotesStore } from '@/store/useNotesStore';
 import { getFilteredNotes, downloadNoteImage } from '@/lib/camera';
 
@@ -10,7 +9,6 @@ export function useCameraNotes() {
   const loading = useNotesStore(s => s.loading);
   const addNote = useNotesStore(s => s.addNote);
   const removeNote = useNotesStore(s => s.removeNote);
-
   const [showCamera, setShowCamera] = useState(false);
   const [viewNote, setViewNote] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
@@ -18,7 +16,6 @@ export function useCameraNotes() {
 
   useEffect(() => {
     loadNotes();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function handleCapture(data) {
@@ -43,19 +40,14 @@ export function useCameraNotes() {
     notes,
     loading,
     filtered,
-
     showCamera,
     setShowCamera,
-
     viewNote,
     setViewNote,
-
     deleteTarget,
     setDeleteTarget,
-
     filterCourse,
     setFilterCourse,
-
     handleCapture,
     handleDeleteNote,
     downloadNote,

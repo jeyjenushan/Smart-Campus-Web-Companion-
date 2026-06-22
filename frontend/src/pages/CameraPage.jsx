@@ -1,38 +1,31 @@
 import { Camera, CameraOff, Image } from 'lucide-react';
-
 import { TopHeader } from '@/components/layout/TopHeader';
 import { Button, EmptyState, Spinner } from '@/components/ui';
 import { Modal } from '@/components/ui/Modal';
-
 import { CameraCapture } from '@/components/camera/CameraCapture';
 import { NoteCard } from '@/components/camera/NoteCard';
 import { CameraFilters } from '@/components/camera/CameraFilters';
 import { CameraViewModal } from '@/components/camera/CameraViewModal';
 import { CameraDeleteModal } from '@/components/camera/CameraDeleteModal';
-
 import { useCameraNotes } from '@/hooks/camera/useCameraNotes';
 import { useCameraSupport } from '@/hooks/camera/useCameraSupport';
 
 export default function CameraPage() {
+  //Checks wheather the browser supports camera access
   const hasCameraAPI = useCameraSupport();
 
   const {
     notes,
     loading,
     filtered,
-
     showCamera,
     setShowCamera,
-
     viewNote,
     setViewNote,
-
     deleteTarget,
     setDeleteTarget,
-
     filterCourse,
     setFilterCourse,
-
     handleCapture,
     handleDeleteNote,
     downloadNote,

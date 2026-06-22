@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { Camera, CameraOff, Check, FlipHorizontal } from 'lucide-react';
+import { Camera, CameraOff, Check, FlipHorizontal, RotateCcw } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 import { Button, Input, Spinner } from '@/components/ui';
 import { CustomSelect } from '@/components/ui/Select';
 import { COURSES } from '@/data/seedData';
 import { cn } from '@/lib/cn';
+import { useIsMobileDevice } from '@/hooks/camera/useIsMobileDevice';
 
 const COURSE_OPTS = [
   { value: '', label: 'Select course…' },
@@ -13,9 +14,12 @@ const COURSE_OPTS = [
 ];
 
 export function CameraCapture({ onCapture }) {
+  const isMobile = useIsMobileDevice();
+
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   const [ready, setReady] = useState(false);
   const [camError, setCamError] = useState(null);
@@ -69,10 +73,12 @@ export function CameraCapture({ onCapture }) {
   );
 
   useEffect(() => {
+    if (isMobile) return;
+
     startCamera('environment');
     return stopStream;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isMobile]);
 
   function flipCamera() {
     const next = facing === 'environment' ? 'user' : 'environment';
@@ -101,9 +107,32 @@ export function CameraCapture({ onCapture }) {
     stopStream();
   }
 
+  function openNativeCamera() {
+    fileInputRef.current?.click();
+  }
+
+  function handleNativeFile(e) {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please capture a photo, not another file type.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => setCaptured(reader.result);
+    reader.onerror = () => toast.error('Could not read the captured photo.');
+    reader.readAsDataURL(file);
+  }
+
   function retake() {
     setCaptured(null);
-    startCamera(facing);
+    if (!isMobile) {
+      startCamera(facing);
+    }
   }
 
   async function saveNote() {
@@ -132,25 +161,6 @@ export function CameraCapture({ onCapture }) {
     }
   }
 
-  if (camError) {
-    return (
-      <div className="rounded-2xl bg-danger/10 border border-danger/30 p-6 text-center">
-        <CameraOff className="w-10 h-10 text-danger mx-auto mb-3" />
-        <p className="text-sm font-semibold text-danger">{camError}</p>
-        <p className="text-xs text-ink-muted mt-1">
-          Check browser permissions and try again
-        </p>
-
-        <Button
-          variant="secondary"
-          className="mt-4 mx-auto"
-          onClick={() => startCamera(facing)}
-        >
-          Retry
-        </Button>
-      </div>
-    );
-  }
 
   if (captured) {
     return (
@@ -176,8 +186,12 @@ export function CameraCapture({ onCapture }) {
         />
 
         <div className="flex gap-3">
-          <Button variant="secondary" className="flex-1" onClick={retake}>
-            Retake
+          <Button
+            variant="secondary"
+            className="flex-1"
+            onClick={isMobile ? openNativeCamera : retake}
+          >
+            {isMobile ? <RotateCcw className="w-4 h-4" /> : null} Retake
           </Button>
 
           <Button
@@ -189,6 +203,81 @@ export function CameraCapture({ onCapture }) {
             <Check className="w-4 h-4" /> Save Note
           </Button>
         </div>
+
+        {/* Keep the input mounted so "Retake" on mobile can reuse it */}
+        {isMobile && (
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            onChange={handleNativeFile}
+            className="hidden"
+          />
+        )}
+      </div>
+    );
+  }
+
+  // --- Mobile/tablet capture screen ---------------------------------------
+  if (isMobile) {
+    return (
+      <div className="space-y-4">
+        <div className="rounded-2xl bg-ink/5 border border-ink/10 p-8 text-center">
+          <Camera className="w-10 h-10 text-brand-600 mx-auto mb-3" />
+          <p className="text-sm font-semibold text-ink">
+            Ready to capture
+          </p>
+          <p className="text-xs text-ink-muted mt-1">
+            Tap below to open your camera
+          </p>
+        </div>
+
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          onChange={handleNativeFile}
+          className="hidden"
+        />
+
+        <div className="flex justify-center">
+          <button
+            onClick={openNativeCamera}
+            className="w-16 h-16 rounded-full border-4 border-white bg-white shadow-card-lg active:scale-95 transition-all"
+            aria-label="Open camera"
+          >
+            <div className="w-full h-full rounded-full bg-brand-600 flex items-center justify-center">
+              <Camera className="w-7 h-7 text-white" />
+            </div>
+          </button>
+        </div>
+
+        <p className="text-xs text-ink-faint text-center">
+          Point camera at handwritten notes and tap to capture
+        </p>
+      </div>
+    );
+  }
+
+  // --- Desktop live-stream capture screen (unchanged) ---------------------
+  if (camError) {
+    return (
+      <div className="rounded-2xl bg-danger/10 border border-danger/30 p-6 text-center">
+        <CameraOff className="w-10 h-10 text-danger mx-auto mb-3" />
+        <p className="text-sm font-semibold text-danger">{camError}</p>
+        <p className="text-xs text-ink-muted mt-1">
+          Check browser permissions and try again
+        </p>
+
+        <Button
+          variant="secondary"
+          className="mt-4 mx-auto"
+          onClick={() => startCamera(facing)}
+        >
+          Retry
+        </Button>
       </div>
     );
   }
