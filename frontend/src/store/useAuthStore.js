@@ -43,7 +43,7 @@ export const useAuthStore = create(
             throw new Error('Email already registered');
           }
 
-          // Create new user
+      // Create new user with profile initialization
           const newUser = {
             id: Date.now().toString(),
             email,
@@ -54,9 +54,34 @@ export const useAuthStore = create(
             createdAt: new Date().toISOString(),
           };
 
-          // Save to localStorage (in production: save to backend)
+          // Initialize profile data for new user
+          const profileData = {
+            userId: newUser.id,
+            name,
+            regNumber,
+            avatar: newUser.avatar,
+            faculty: 'Faculty of Science',
+            degree: 'BSc Honours in Software Engineering',
+            year: 1,
+            semester: 1,
+            gpa: 0,
+            completedCredits: 0,
+            totalCredits: 120,
+            notificationsEnabled: false,
+            theme: 'light',
+            createdAt: new Date().toISOString(),
+          };
+
+          // Save user to localStorage
+          const existingUsers = localStorage.getItem('campus-sync-users');
+          const users = existingUsers ? JSON.parse(existingUsers) : [];
           users.push(newUser);
           localStorage.setItem('campus-sync-users', JSON.stringify(users));
+
+          // Save user profile to localStorage as well
+          const userProfiles = JSON.parse(localStorage.getItem('campus-sync-user-profiles') || '{}');
+          userProfiles[newUser.id] = profileData;
+          localStorage.setItem('campus-sync-user-profiles', JSON.stringify(userProfiles));
 
           // Log in the user
           const { password: _, ...userWithoutPassword } = newUser;

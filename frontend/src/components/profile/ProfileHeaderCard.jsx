@@ -107,6 +107,53 @@ export function ProfileHeaderCard({
             />
           </div>
 
+          <Input
+            label="GPA"
+            type="number"
+            step="0.01"
+            min="0"
+            max="4.0"
+            placeholder="3.5"
+            value={form.gpa}
+            onChange={e => setForm(f => ({ ...f, gpa: e.target.value }))}
+          />
+
+          <div className="grid grid-cols-2 gap-3">
+            <Input
+              label="Credits Completed"
+              type="number"
+              min="0"
+              placeholder="0"
+              value={form.completedCredits}
+              onChange={e => setForm(f => ({ ...f, completedCredits: e.target.value }))}
+            />
+
+            <Input
+              label="Total Credits"
+              type="number"
+              min="0"
+              placeholder="120"
+              value={form.totalCredits}
+              onChange={e => setForm(f => ({ ...f, totalCredits: e.target.value }))}
+            />
+          </div>
+
+          <Input
+            label="Faculty"
+            type="text"
+            placeholder="Faculty of Science"
+            value={form.faculty}
+            onChange={e => setForm(f => ({ ...f, faculty: e.target.value }))}
+          />
+
+          <Input
+            label="Degree"
+            type="text"
+            placeholder="BSc Honours in Software Engineering"
+            value={form.degree}
+            onChange={e => setForm(f => ({ ...f, degree: e.target.value }))}
+          />
+
           <Button
             variant="primary"
             className="w-full"

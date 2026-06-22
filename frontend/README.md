@@ -1458,6 +1458,152 @@ User Input (Email/Password)
 - `src/components/layout/ProtectedRoute.jsx` - Route protection
 - `src/components/layout/TopHeader.jsx` - Sign out button
 
+#### User Profile Management System:
+
+The application maintains **per-user profiles** that are completely isolated:
+
+**1. Profile Store** (`src/store/useProfileStore.js`):
+```javascript
+// Loads profile for currently authenticated user
+loadProfile: async () => {
+  const user = useAuthStore.getState().user;
+  
+  // Load profile from localStorage keyed by userId
+  const userProfiles = JSON.parse(localStorage.getItem('campus-sync-user-profiles') || '{}');
+  const profile = userProfiles[user.id];
+  
+  // Create default profile if not exists
+  if (!profile) {
+    const defaultProfile = {
+      userId: user.id,
+      name: user.name,
+      regNumber: user.regNumber,
+      avatar: user.avatar,
+      year: 1,
+      semester: 1,
+      gpa: 0,
+      completedCredits: 0,
+      totalCredits: 120,
+      faculty: 'Faculty of Science',
+      degree: 'BSc Honours in Software Engineering',
+      // ... other fields
+    };
+    userProfiles[user.id] = defaultProfile;
+    localStorage.setItem('campus-sync-user-profiles', JSON.stringify(userProfiles));
+  }
+  
+  return profile;
+}
+```
+
+**2. Profile Data Structure**:
+```javascript
+{
+  userId: string,              // From authenticated user
+  name: string,                // From signup (editable)
+  regNumber: string,           // From signup (editable)
+  avatar: string,              // Auto-generated or uploaded
+  year: number,                // 1-4 (editable)
+  semester: number,            // 1-2 (editable)
+  gpa: number,                 // Cumulative GPA (editable)
+  completedCredits: number,    // Total credits earned (editable)
+  totalCredits: number,        // Degree requirement (editable)
+  faculty: string,             // Faculty name (editable)
+  degree: string,              // Degree program (editable)
+  courses: array,              // Current semester courses
+  completedCourses: array,     // Historical course records
+  notificationsEnabled: boolean,
+  theme: string,               // 'light' or 'dark'
+  createdAt: ISO8601 timestamp
+}
+```
+
+**3. localStorage Organization**:
+```javascript
+// User credentials
+campus-sync-users: [
+  { id, email, password, name, regNumber, avatar, createdAt },
+  ...
+]
+
+// Per-user authentication state
+campus-sync-auth: { user, isAuthenticated }
+
+// Per-user profile data (NEW)
+campus-sync-user-profiles: {
+  "userId1": { userId, name, regNumber, avatar, year, semester, ... },
+  "userId2": { userId, name, regNumber, avatar, year, semester, ... },
+  ...
+}
+```
+
+**4. Profile Editing**:
+
+Users can edit their profile from the Profile page:
+- **Account Info**: Name, Registration Number
+- **Academic Info**: Year, Semester, Faculty, Degree
+- **Progress Tracking**: Completed Credits, Total Credits, GPA
+- **Avatar**: Upload or use auto-generated avatar
+
+**5. Profile Updates Flow**:
+```javascript
+// In ProfilePage.jsx
+const handleSave = async () => {
+  // Update profile with new values
+  await updateProfile({
+    year: Number(form.year),
+    semester: Number(form.semester),
+    gpa: Number(form.gpa),
+    completedCredits: Number(form.completedCredits),
+    totalCredits: Number(form.totalCredits),
+    faculty: form.faculty,
+    degree: form.degree,
+  });
+  
+  // Profile saved to localStorage and in-memory store
+};
+```
+
+**6. Profile Usage Across App**:
+
+All components now display user-specific data:
+
+| Component | Data Used |
+|-----------|-----------|
+| TopHeader | `profile.avatar`, `profile.name` |
+| DashboardGreeting | `profile.name` (first name) |
+| DashboardStats | `profile.completedCredits`, `profile.totalCredits` |
+| ProfileHeaderCard | All profile fields |
+| DegreeProgressCard | `profile.completedCredits`, `profile.totalCredits` |
+
+**7. Multi-User Isolation**:
+
+Each user has completely separate profile data:
+
+```
+User A Sign Up
+  → Create userId: "1234"
+  → Save profile to campus-sync-user-profiles["1234"]
+
+User B Sign Up
+  → Create userId: "5678"
+  → Save profile to campus-sync-user-profiles["5678"]
+
+User A Sign In
+  → Load profile from campus-sync-user-profiles["1234"]
+  → See ONLY User A's profile data
+
+User B Sign In
+  → Load profile from campus-sync-user-profiles["5678"]
+  → See ONLY User B's profile data
+```
+
+#### Profile Files:
+- `src/store/useProfileStore.js` - Per-user profile management
+- `src/pages/ProfilePage.jsx` - Profile UI
+- `src/hooks/profile/useProfilePage.js` - Profile page logic
+- `src/components/profile/ProfileHeaderCard.jsx` - Profile editing form
+
 ---
 
 ### Advanced Feature 3: Progressive Web App (PWA) Capabilities

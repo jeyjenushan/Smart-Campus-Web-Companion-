@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 
 import { useProfileStore } from '@/store/useProfileStore';
+import { useAuthStore } from '@/store/useAuthStore';
 import { requestNotificationPermission, sendNotification } from '@/lib/notifications';
 import { calculateCgpa } from '@/lib/profile';
 
@@ -13,6 +14,8 @@ export function useProfilePage() {
   const setAvatar = useProfileStore(s => s.setAvatar);
   const getProgressPct = useProfileStore(s => s.getProgressPct);
   const getCurrentSemesterCredits = useProfileStore(s => s.getCurrentSemesterCredits);
+
+  const user = useAuthStore(s => s.user);
 
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -27,6 +30,15 @@ export function useProfilePage() {
 
   useEffect(() => {
     loadProfile();
+    
+    // Sync user data to profile on mount if user changed
+    if (user && profile && (profile.name !== user.name || profile.regNumber !== user.regNumber)) {
+      updateProfile({
+        name: user.name,
+        regNumber: user.regNumber,
+        avatar: user.avatar,
+      });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -35,9 +47,13 @@ export function useProfilePage() {
       setForm({
         name: profile.name ?? '',
         regNumber: profile.regNumber ?? '',
-        year: profile.year ?? 4,
-        semester: profile.semester ?? 2,
-        gpa: profile.gpa ?? '',
+        year: profile.year ?? 1,
+        semester: profile.semester ?? 1,
+        gpa: profile.gpa ?? 0,
+        completedCredits: profile.completedCredits ?? 0,
+        totalCredits: profile.totalCredits ?? 120,
+        faculty: profile.faculty ?? 'Faculty of Science',
+        degree: profile.degree ?? 'BSc Honours in Software Engineering',
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -53,10 +69,15 @@ export function useProfilePage() {
 
     try {
       await updateProfile({
-        ...form,
+        name: form.name,
+        regNumber: form.regNumber,
         year: Number(form.year),
         semester: Number(form.semester),
         gpa: Number(form.gpa),
+        completedCredits: Number(form.completedCredits),
+        totalCredits: Number(form.totalCredits),
+        faculty: form.faculty,
+        degree: form.degree,
       });
 
       setEditing(false);
