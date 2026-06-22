@@ -12,7 +12,7 @@ import { useCameraSupport } from '@/hooks/camera/useCameraSupport';
 
 export default function CameraPage() {
   //Checks wheather the browser supports camera access
-  const hasCameraAPI = useCameraSupport();
+   const hasCameraAPI = useCameraSupport();
 
   const {
     notes,
