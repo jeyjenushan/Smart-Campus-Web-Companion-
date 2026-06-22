@@ -91,14 +91,18 @@ export function CourseTabsCard({
               <p className="text-xs text-ink-muted mb-3">
                 💡 Click the circle to mark a course as completed
               </p>
-              {profile.courses.map(course => (
-                <CourseRow 
-                  key={course.code} 
-                  course={course} 
-                  completed={false}
-                  onToggleComplete={handleToggleComplete}
-                />
-              ))}
+              {profile.courses.map(course => {
+                // Check if this course is already completed
+                const isAlreadyCompleted = profile.completedCourses?.some(c => c.code === course.code);
+                return (
+                  <CourseRow 
+                    key={course.code} 
+                    course={course} 
+                    completed={isAlreadyCompleted}
+                    onToggleComplete={handleToggleComplete}
+                  />
+                );
+              })}
             </>
           ) : (
             <p className="text-sm text-ink-muted text-center py-4">
@@ -117,7 +121,7 @@ export function CourseTabsCard({
                   <CourseRow 
                     key={course.code} 
                     course={course} 
-                    completed
+                    completed={false}
                     onToggleComplete={handleToggleComplete}
                   />
                 ))}
