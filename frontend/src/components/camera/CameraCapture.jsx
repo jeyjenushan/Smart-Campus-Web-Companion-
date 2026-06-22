@@ -171,13 +171,14 @@ export function CameraCapture({ onCapture }) {
   }
 
   const nativeCameraInput = (
-    <input
-      ref={nativeCameraRef}
-      type="file"
-      accept="image/*;capture=camera"
-      className="hidden"
-      onChange={handleNativeCapture}
-    />
+   <input
+  ref={nativeCameraRef}
+  type="file"
+  accept="image/*"
+  capture
+  className="hidden"
+  onChange={handleNativeCapture}
+/>
   );
 
   if (captured) {
