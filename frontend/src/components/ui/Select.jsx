@@ -2,9 +2,11 @@ import * as Select from '@radix-ui/react-select';
 import { ChevronDown } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { registerOpen, unregisterOpen } from '@/hooks/useOpenManager';
+import { useDarkMode } from '@/hooks/useDarkMode';
 
 export function CustomSelect({ label, value, onValueChange, options }) {
   const [open, setOpen] = useState(false);
+  const isDark = useDarkMode();
   const closerRef = useRef(null);
 
   function handleOpenChange(isOpen) {
@@ -39,24 +41,23 @@ export function CustomSelect({ label, value, onValueChange, options }) {
         onOpenChange={handleOpenChange}
       >
         <Select.Trigger
-          className="
+          className={`
             w-full
             min-h-[48px]
             px-4
             rounded-xl
             border border-surface-border
-            bg-white dark:bg-slate-800
-            text-ink dark:text-slate-100
+            ${isDark ? 'bg-slate-800 text-slate-100 border-slate-700' : 'bg-white text-ink'}
             text-sm
             font-normal
             flex items-center justify-between
             transition-colors
-          "
+          `}
         >
           <Select.Value placeholder="Select..." />
 
           <Select.Icon>
-            <ChevronDown className="w-4 h-4 text-ink-muted" />
+            <ChevronDown className={`w-4 h-4 ${isDark ? 'text-slate-400' : 'text-ink-muted'}`} />
           </Select.Icon>
         </Select.Trigger>
 
@@ -66,16 +67,16 @@ export function CustomSelect({ label, value, onValueChange, options }) {
             position="popper"
             sideOffset={6}
             avoidCollisions
-            className="
+            className={`
               z-[9999]
               w-[var(--radix-select-trigger-width)]
               rounded-2xl
-              border border-surface-border dark:border-slate-700
-              bg-white dark:bg-slate-800
+              border
+              ${isDark ? 'border-slate-700 bg-slate-800' : 'border-surface-border bg-white'}
               shadow-xl
               overflow-hidden
-              transition-colors
-            "
+              transition-colors dark
+            `}
           >
             <Select.Viewport
               className="
@@ -93,20 +94,19 @@ export function CustomSelect({ label, value, onValueChange, options }) {
                   <Select.Item
                     key={option.value}
                     value={option.value}
-                    className="
+                    className={`
                       flex
                       items-center
                       min-h-[42px]
                       px-4
                       cursor-pointer
                       outline-none
-                      data-[highlighted]:bg-slate-100 dark:data-[highlighted]:bg-slate-700
-                      data-[state=checked]:bg-slate-100 dark:data-[state=checked]:bg-slate-700
                       transition-colors
-                    "
+                      ${isDark ? 'data-[highlighted]:bg-slate-700 data-[state=checked]:bg-slate-700' : 'data-[highlighted]:bg-slate-100 data-[state=checked]:bg-slate-100'}
+                    `}
                   >
                     <Select.ItemText>
-                      <span className="text-sm font-normal text-ink dark:text-slate-100 leading-5">
+                      <span className={`text-sm font-normal leading-5 ${isDark ? 'text-slate-100' : 'text-ink'}`}>
                         {option.label}
                       </span>
                     </Select.ItemText>

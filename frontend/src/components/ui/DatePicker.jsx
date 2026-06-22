@@ -15,10 +15,12 @@ import {
 import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { registerOpen, unregisterOpen } from '@/hooks/useOpenManager';
+import { useDarkMode } from '@/hooks/useDarkMode';
 
 export function CustomDatePicker({ label, value, onChange, error, min }) {
   const containerRef = useRef(null);
   const [open, setOpen] = useState(false);
+  const isDark = useDarkMode();
 
   const selectedDate = value ? new Date(value) : null;
   const minDate = min ? new Date(min) : null;
@@ -79,33 +81,49 @@ export function CustomDatePicker({ label, value, onChange, error, min }) {
       <button
         type="button"
         onClick={handleToggle}
-        className="w-full min-h-[48px] px-4 rounded-xl border border-surface-border bg-white dark:bg-slate-800 text-left text-sm text-ink dark:text-slate-100 flex items-center justify-between transition-colors"
+        className={`w-full min-h-[48px] px-4 rounded-xl border text-left text-sm flex items-center justify-between transition-colors ${
+          isDark 
+            ? 'border-slate-700 bg-slate-800 text-slate-100' 
+            : 'border-surface-border bg-white text-ink'
+        }`}
       >
-        <span className={cn(!selectedDate && 'text-ink-faint')}>
+        <span className={cn(!selectedDate && (isDark ? 'text-slate-400' : 'text-ink-faint'))}>
           {selectedDate ? format(selectedDate, 'MMM d, yyyy') : 'Select date'}
         </span>
-        <Calendar className="w-4 h-4 text-ink-muted" />
+        <Calendar className={`w-4 h-4 ${isDark ? 'text-slate-400' : 'text-ink-muted'}`} />
       </button>
 
       {open && (
-        <div className="absolute left-0 top-full  mt-2 w-[280px] max-w-[calc(100vw-3rem)] rounded-2xl border border-surface-border dark:border-slate-700 bg-white dark:bg-slate-800 p-3 shadow-xl transition-colors">
+        <div className={`absolute left-0 top-full mt-2 w-[280px] max-w-[calc(100vw-3rem)] rounded-2xl border shadow-xl p-3 transition-colors ${
+          isDark 
+            ? 'border-slate-700 bg-slate-800' 
+            : 'border-surface-border bg-white'
+        }`}>
           <div className="flex items-center justify-between mb-3 ">
             <button
               type="button"
               onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
-              className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-ink dark:text-slate-100 transition-colors"
+              className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors ${
+                isDark 
+                  ? 'hover:bg-slate-700 text-slate-100' 
+                  : 'hover:bg-slate-100 text-ink'
+              }`}
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
 
-            <p className="text-sm font-bold text-ink dark:text-slate-100">
+            <p className={`text-sm font-bold ${isDark ? 'text-slate-100' : 'text-ink'}`}>
               {format(currentMonth, 'MMMM yyyy')}
             </p>
 
             <button
               type="button"
               onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
-              className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-ink dark:text-slate-100 transition-colors"
+              className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors ${
+                isDark 
+                  ? 'hover:bg-slate-700 text-slate-100' 
+                  : 'hover:bg-slate-100 text-ink'
+              }`}
             >
               <ChevronRight className="w-5 h-5" />
             </button>
@@ -113,7 +131,7 @@ export function CustomDatePicker({ label, value, onChange, error, min }) {
 
           <div className="grid grid-cols-7 gap-1 text-center mb-1">
             {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(d => (
-              <div key={d} className="text-[11px] font-semibold text-ink-muted dark:text-slate-400 py-1">
+              <div key={d} className={`text-[11px] font-semibold py-1 ${isDark ? 'text-slate-400' : 'text-ink-muted'}`}>
                 {d}
               </div>
             ))}
