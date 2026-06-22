@@ -5,6 +5,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { InstallBanner } from '@/components/notifications/InstallBanner';
 import { Spinner } from '@/components/ui';
+import { useThemeInitializer } from '@/store/useThemeStore';
 
 const DashboardPage   = lazy(() => import('@/pages/DashboardPage'));
 const AssignmentsPage = lazy(() => import('@/pages/AssignmentsPage'));
@@ -21,6 +22,9 @@ function PageLoader() {
 }
 
 export default function App() {
+  // Initialize theme from localStorage on app start
+  useThemeInitializer();
+
   return (
     <ErrorBoundary>
       <BrowserRouter>

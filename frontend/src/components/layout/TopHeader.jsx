@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { BookOpen } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { useProfileStore } from '@/store/useProfileStore';
+import { ThemeToggle } from './ThemeToggle';
 import { Avatar } from '@/components/ui';
 
 export function TopHeader({ title, subtitle, actions, className }) {
@@ -27,6 +28,7 @@ export function TopHeader({ title, subtitle, actions, className }) {
         </div>
         <div className="flex items-center gap-1">
           {actions}
+          <ThemeToggle />
           <Link to="/profile" className="touch-target w-9 h-9 flex items-center justify-center">
             <Avatar src={profile?.avatar} name={profile?.name} size="sm" />
           </Link>

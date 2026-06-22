@@ -18,13 +18,13 @@
   --color-brand-900: #881337;
   --color-brand-950: #4c0519;
 
-  /* Surface */
+  /* Surface - Light Mode */
   --color-surface: #ffffff;
   --color-surface-subtle: #fafafa;
   --color-surface-muted: #f4f4f5;
   --color-surface-border: #e4e4e7;
 
-  /* Text */
+  /* Text - Light Mode */
   --color-ink: #18181b;
   --color-ink-muted: #52525b;
   --color-ink-faint: #a1a1aa;
@@ -63,6 +63,44 @@
   --spacing-safe-bottom: env(safe-area-inset-bottom);
 }
 
+/* Dark Mode Theme */
+@layer base {
+  .dark {
+    color-scheme: dark;
+
+    --color-surface: #0f172a;
+    --color-surface-subtle: #1e293b;
+    --color-surface-muted: #334155;
+    --color-surface-border: #334155;
+
+    --color-ink: #f8fafc;
+    --color-ink-muted: #cbd5e1;
+    --color-ink-faint: #94a3b8;
+
+    --color-success: #22c55e;
+    --color-success-light: #051a0f;
+
+    --color-warning: #f59e0b;
+    --color-warning-light: #1a0f00;
+
+    --color-danger: #ef4444;
+    --color-danger-light: #1a0000;
+
+    --color-info: #8b5cf6;
+    --color-info-light: #1a0f2e;
+
+    --shadow-card:
+      0 1px 3px rgba(0,0,0,.2),
+      0 1px 2px rgba(0,0,0,.15);
+
+    --shadow-card-md:
+      0 8px 20px rgba(244,63,94,.2);
+
+    --shadow-card-lg:
+      0 18px 40px rgba(244,63,94,.25);
+  }
+}
+
 @layer base {
   *,
   *::before,
@@ -92,6 +130,17 @@
       #fafafa;
   }
 
+  .dark body {
+    background:
+      radial-gradient(circle at top left,
+        rgba(244,63,94,.1),
+        transparent 35%),
+      radial-gradient(circle at top right,
+        rgba(139,92,246,.1),
+        transparent 35%),
+      #0f172a;
+  }
+
   :focus-visible {
     @apply outline-2 outline-offset-2 outline-brand-500;
   }
@@ -112,6 +161,15 @@
 
   ::-webkit-scrollbar-thumb:hover {
     background: #a1a1aa;
+  }
+
+  .dark ::-webkit-scrollbar-thumb {
+    background: #475569;
+    border-radius: 999px;
+  }
+
+  .dark ::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
   }
 }
 
@@ -159,8 +217,16 @@
     @apply bg-surface-muted text-ink hover:bg-zinc-200;
   }
 
+  .dark .btn-secondary {
+    @apply bg-slate-800 text-slate-100 hover:bg-slate-700;
+  }
+
   .btn-ghost {
     @apply text-ink-muted hover:bg-surface-muted;
+  }
+
+  .dark .btn-ghost {
+    @apply text-slate-400 hover:bg-slate-800;
   }
 
   .btn-danger {
@@ -176,6 +242,12 @@
            focus:ring-2
            focus:ring-brand-400
            focus:border-transparent;
+  }
+
+  .dark .input {
+    @apply bg-slate-800 text-slate-100 border-slate-700
+           placeholder-slate-400
+           focus:ring-brand-500;
   }
 
   .badge {
