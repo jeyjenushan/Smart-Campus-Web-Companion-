@@ -1,4 +1,7 @@
+import { useRef } from 'react';
 import { Camera, CameraOff, Image } from 'lucide-react';
+import toast from 'react-hot-toast';
+
 import { TopHeader } from '@/components/layout/TopHeader';
 import { Button, EmptyState, Spinner } from '@/components/ui';
 import { Modal } from '@/components/ui/Modal';
@@ -9,10 +12,12 @@ import { CameraViewModal } from '@/components/camera/CameraViewModal';
 import { CameraDeleteModal } from '@/components/camera/CameraDeleteModal';
 import { useCameraNotes } from '@/hooks/camera/useCameraNotes';
 import { useCameraSupport } from '@/hooks/camera/useCameraSupport';
+import { useIsMobileDevice } from '@/hooks/camera/useMobileDevice';
 
 export default function CameraPage() {
-  //Checks wheather the browser supports camera access
-   const hasCameraAPI = useCameraSupport();
+  const hasCameraAPI = useCameraSupport();
+  const isMobile = useIsMobileDevice();
+  const nativeCameraRef = useRef(null);
 
   const {
     notes,
@@ -31,8 +36,58 @@ export default function CameraPage() {
     downloadNote,
   } = useCameraNotes();
 
+  function openCapture() {
+    if (isMobile) {
+      nativeCameraRef.current?.click();
+      return;
+    }
+
+    setShowCamera(true);
+  }
+
+  function handleNativeCapture(e) {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please capture an image.');
+      return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = async () => {
+      try {
+        await handleCapture({
+          imageData: reader.result,
+          course: '',
+          note: '',
+        });
+      } catch {
+        toast.error('Failed to save note');
+      }
+    };
+
+    reader.onerror = () => {
+      toast.error('Could not read captured image.');
+    };
+
+    reader.readAsDataURL(file);
+  }
+
   return (
     <div className="animate-in">
+      <input
+        ref={nativeCameraRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        className="hidden"
+        onChange={handleNativeCapture}
+      />
+
       <TopHeader
         title="Lecture Notes"
         subtitle={`${notes.length} photo${notes.length !== 1 ? 's' : ''} captured`}
@@ -41,10 +96,11 @@ export default function CameraPage() {
             <Button
               variant="primary"
               size="sm"
-              onClick={() => setShowCamera(true)}
+              onClick={openCapture}
               className="h-9 px-3 gap-1"
             >
-              <Camera className="w-4 h-4" /> Capture
+              <Camera className="w-4 h-4" />
+              Capture
             </Button>
           )
         }
@@ -77,8 +133,9 @@ export default function CameraPage() {
             description="Tap Capture to photograph your handwritten notes"
             action={
               hasCameraAPI && (
-                <Button variant="primary" onClick={() => setShowCamera(true)}>
-                  <Camera className="w-4 h-4" /> Capture First Note
+                <Button variant="primary" onClick={openCapture}>
+                  <Camera className="w-4 h-4" />
+                  Capture First Note
                 </Button>
               )
             }
@@ -97,14 +154,16 @@ export default function CameraPage() {
         )}
       </div>
 
-      <Modal
-        open={showCamera}
-        onClose={() => setShowCamera(false)}
-        title="Capture Lecture Note"
-        description="Point your camera at handwritten notes"
-      >
-        <CameraCapture onCapture={handleCapture} />
-      </Modal>
+      {!isMobile && (
+        <Modal
+          open={showCamera}
+          onClose={() => setShowCamera(false)}
+          title="Capture Lecture Note"
+          description="Point your camera at handwritten notes"
+        >
+          <CameraCapture onCapture={handleCapture} />
+        </Modal>
+      )}
 
       <CameraViewModal
         note={viewNote}
