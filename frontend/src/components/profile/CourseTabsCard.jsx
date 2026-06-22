@@ -1,9 +1,11 @@
 import { BookOpen, CheckCircle2 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useState } from 'react';
 
 import { cn } from '@/lib/cn';
 import { CourseRow } from './CourseRow';
-import { DEGREES } from '@/data/seedData';
+import { GradeSelectionModal } from './GradeSelectionModal';
+import { DEGREES, GRADE_POINTS } from '@/data/seedData';
 import { useProfileStore } from '@/store/useProfileStore';
 
 export function CourseTabsCard({
@@ -15,6 +17,7 @@ export function CourseTabsCard({
   totalCreditsDone,
 }) {
   const updateProfile = useProfileStore(s => s.updateProfile);
+  const [gradeModal, setGradeModal] = useState({ isOpen: false, courseCode: '', courseName: '' });
 
   // Get current degree info and its courses
   const currentDegree = DEGREES.find(d => d.name === profile.degree);
@@ -34,16 +37,35 @@ export function CourseTabsCard({
       await updateProfile({ completedCourses: updated });
       toast.success('Course marked as current');
     } else {
-      // Add to completed with default grade A-
-      const courseToAdd = profile.courses.find(c => c.code === courseCode);
-      if (courseToAdd) {
-        const updated = [
-          ...(profile.completedCourses || []),
-          { ...courseToAdd, grade: 'A-', completedAt: new Date().toISOString() }
-        ];
-        await updateProfile({ completedCourses: updated });
-        toast.success('Course marked as completed!');
+      // Show grade selection modal
+      const course = profile.courses.find(c => c.code === courseCode);
+      if (course) {
+        setGradeModal({
+          isOpen: true,
+          courseCode: course.code,
+          courseName: course.name,
+        });
       }
+    }
+  }
+
+  async function handleGradeSelected(grade) {
+    const courseCode = gradeModal.courseCode;
+    const courseToAdd = profile.courses.find(c => c.code === courseCode);
+    
+    if (courseToAdd) {
+      const gp = GRADE_POINTS[grade] ?? 0;
+      const updated = [
+        ...(profile.completedCourses || []),
+        { 
+          ...courseToAdd, 
+          grade, 
+          gp,
+          completedAt: new Date().toISOString() 
+        }
+      ];
+      await updateProfile({ completedCourses: updated });
+      toast.success(`Course completed with grade ${grade}!`);
     }
   }
 
@@ -118,6 +140,14 @@ export function CourseTabsCard({
             </p>
           ))}
       </div>
+
+      <GradeSelectionModal
+        isOpen={gradeModal.isOpen}
+        courseCode={gradeModal.courseCode}
+        courseName={gradeModal.courseName}
+        onClose={() => setGradeModal({ isOpen: false, courseCode: '', courseName: '' })}
+        onConfirm={handleGradeSelected}
+      />
     </div>
   );
 }

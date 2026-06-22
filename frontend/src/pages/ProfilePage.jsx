@@ -40,6 +40,17 @@ export default function ProfilePage() {
     toggleNotifications,
   } = useProfilePage();
 
+    progressPct,
+    semCredits,
+    completedCourses,
+    cgpa,
+    totalCreditsDone,
+
+    handleSave,
+    handleAvatarChange,
+    toggleNotifications,
+  } = useProfilePage();
+
   if (loading || !profile) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -89,6 +100,7 @@ export default function ProfilePage() {
           profile={profile}
           progressPct={progressPct}
           semCredits={semCredits}
+          completedCourses={completedCourses}
         />
 
         {!editing && completedCourses.length === 0 && profile.degree && (
