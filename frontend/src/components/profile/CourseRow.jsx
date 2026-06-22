@@ -27,14 +27,12 @@ export function CourseRow({ course, completed, onToggleComplete }) {
       )}
 
       {onToggleComplete && completed && (
-        <button
-          type="button"
-          onClick={() => onToggleComplete(course.code)}
-          className="flex-shrink-0 text-success hover:text-danger transition-colors"
-          title="Mark as not completed"
+        <div
+          className="flex-shrink-0 text-success opacity-60 cursor-not-allowed"
+          title="Course locked - completed courses cannot be reverted"
         >
           <CheckCircle2 className="w-5 h-5" />
-        </button>
+        </div>
       )}
 
       {!onToggleComplete && (

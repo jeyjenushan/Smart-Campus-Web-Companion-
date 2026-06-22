@@ -29,23 +29,15 @@ export function CourseTabsCard({
   );
 
   async function handleToggleComplete(courseCode) {
-    const isCompleted = profile.completedCourses?.some(c => c.code === courseCode);
-
-    if (isCompleted) {
-      // Remove from completed
-      const updated = profile.completedCourses.filter(c => c.code !== courseCode);
-      await updateProfile({ completedCourses: updated });
-      toast.success('Course marked as current');
-    } else {
-      // Show grade selection modal
-      const course = profile.courses.find(c => c.code === courseCode);
-      if (course) {
-        setGradeModal({
-          isOpen: true,
-          courseCode: course.code,
-          courseName: course.name,
-        });
-      }
+    // Only add to completed, cannot revert once completed
+    const courseToAdd = profile.courses.find(c => c.code === courseCode);
+    
+    if (courseToAdd) {
+      setGradeModal({
+        isOpen: true,
+        courseCode: courseToAdd.code,
+        courseName: courseToAdd.name,
+      });
     }
   }
 
