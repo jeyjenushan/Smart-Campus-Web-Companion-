@@ -1,4 +1,6 @@
+import { useRef, useState } from 'react';
 import { Camera, CameraOff, Image } from 'lucide-react';
+
 import { TopHeader } from '@/components/layout/TopHeader';
 import { Button, EmptyState, Spinner } from '@/components/ui';
 import { Modal } from '@/components/ui/Modal';
@@ -9,10 +11,14 @@ import { CameraViewModal } from '@/components/camera/CameraViewModal';
 import { CameraDeleteModal } from '@/components/camera/CameraDeleteModal';
 import { useCameraNotes } from '@/hooks/camera/useCameraNotes';
 import { useCameraSupport } from '@/hooks/camera/useCameraSupport';
+import { useIsMobileDevice } from '@/hooks/camera/useMobileDevice';
 
 export default function CameraPage() {
-  //Checks wheather the browser supports camera access
   const hasCameraAPI = useCameraSupport();
+  const isMobile = useIsMobileDevice();
+
+  const nativeCameraInputRef = useRef(null);
+  const [mobileCapturedImage, setMobileCapturedImage] = useState(null);
 
   const {
     notes,
@@ -31,17 +37,54 @@ export default function CameraPage() {
     downloadNote,
   } = useCameraNotes();
 
+  const canUseCamera = hasCameraAPI || isMobile;
+
+  function openCapture() {
+    if (isMobile) {
+      nativeCameraInputRef.current?.click();
+      return;
+    }
+
+    setShowCamera(true);
+  }
+
+  function handleNativeCameraChange(e) {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      setMobileCapturedImage(reader.result);
+      setShowCamera(true);
+    };
+
+    reader.readAsDataURL(file);
+  }
+
+  function closeCameraModal() {
+    setShowCamera(false);
+    setMobileCapturedImage(null);
+  }
+
+  async function handleSaveCapture(data) {
+    await handleCapture(data);
+    closeCameraModal();
+  }
+
   return (
     <div className="animate-in">
       <TopHeader
         title="Lecture Notes"
         subtitle={`${notes.length} photo${notes.length !== 1 ? 's' : ''} captured`}
         actions={
-          hasCameraAPI && (
+          canUseCamera && (
             <Button
               variant="primary"
               size="sm"
-              onClick={() => setShowCamera(true)}
+              onClick={openCapture}
               className="h-9 px-3 gap-1"
             >
               <Camera className="w-4 h-4" /> Capture
@@ -50,8 +93,18 @@ export default function CameraPage() {
         }
       />
 
+      {/* Mobile / Tablet native camera input */}
+      <input
+        ref={nativeCameraInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        className="hidden"
+        onChange={handleNativeCameraChange}
+      />
+
       <div className="px-4 pt-4 pb-6 space-y-4">
-        {!hasCameraAPI && (
+        {!canUseCamera && (
           <div className="card p-4 flex items-center gap-3">
             <CameraOff className="w-5 h-5 text-warning flex-shrink-0" />
             <p className="text-sm text-ink-muted">
@@ -76,8 +129,8 @@ export default function CameraPage() {
             title={filterCourse ? 'No notes for this course' : 'No lecture notes yet'}
             description="Tap Capture to photograph your handwritten notes"
             action={
-              hasCameraAPI && (
-                <Button variant="primary" onClick={() => setShowCamera(true)}>
+              canUseCamera && (
+                <Button variant="primary" onClick={openCapture}>
                   <Camera className="w-4 h-4" /> Capture First Note
                 </Button>
               )
@@ -97,13 +150,19 @@ export default function CameraPage() {
         )}
       </div>
 
+      {/* Desktop: opens live camera.
+          Mobile: opens only after native camera image is selected, for save form. */}
       <Modal
         open={showCamera}
-        onClose={() => setShowCamera(false)}
+        onClose={closeCameraModal}
         title="Capture Lecture Note"
         description="Point your camera at handwritten notes"
       >
-        <CameraCapture onCapture={handleCapture} />
+        <CameraCapture
+          onCapture={handleSaveCapture}
+          initialCaptured={mobileCapturedImage}
+          onRetakeMobile={() => nativeCameraInputRef.current?.click()}
+        />
       </Modal>
 
       <CameraViewModal
