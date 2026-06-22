@@ -13,13 +13,29 @@ const COURSE_OPTS = [
   ...COURSES.map(c => ({ value: c.code, label: c.code })),
 ];
 
+function isIOSDevice() {
+  if (typeof navigator === 'undefined') return false;
+
+  return (
+    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+  );
+}
+
+function isAndroidDevice() {
+  if (typeof navigator === 'undefined') return false;
+  return /Android/i.test(navigator.userAgent);
+}
+
 export function CameraCapture({ onCapture }) {
   const isMobile = useIsMobileDevice();
 
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
-  const nativeCameraRef = useRef(null);
+
+  const androidInputRef = useRef(null);
+  const iosCameraInputRef = useRef(null);
 
   const [ready, setReady] = useState(false);
   const [camError, setCamError] = useState(null);
@@ -28,6 +44,13 @@ export function CameraCapture({ onCapture }) {
   const [course, setCourse] = useState('');
   const [noteText, setNoteText] = useState('');
   const [saving, setSaving] = useState(false);
+  const [platform, setPlatform] = useState('other');
+
+  useEffect(() => {
+    if (isIOSDevice()) setPlatform('ios');
+    else if (isAndroidDevice()) setPlatform('android');
+    else setPlatform('other');
+  }, []);
 
   const stopStream = useCallback(() => {
     streamRef.current?.getTracks().forEach(track => track.stop());
@@ -80,7 +103,12 @@ export function CameraCapture({ onCapture }) {
   }, [isMobile, startCamera, stopStream]);
 
   function openNativeCamera() {
-    nativeCameraRef.current?.click();
+    if (platform === 'ios') {
+      iosCameraInputRef.current?.click();
+      return;
+    }
+
+    androidInputRef.current?.click();
   }
 
   function handleNativeCapture(e) {
@@ -138,7 +166,7 @@ export function CameraCapture({ onCapture }) {
     setCaptured(null);
 
     if (isMobile) {
-      openNativeCamera();
+      setTimeout(openNativeCamera, 100);
     } else {
       startCamera(facing);
     }
@@ -170,15 +198,27 @@ export function CameraCapture({ onCapture }) {
     }
   }
 
-  const nativeCameraInput = (
-   <input
-  ref={nativeCameraRef}
-  type="file"
-  accept="image/*"
-  capture
-  className="hidden"
-  onChange={handleNativeCapture}
-/>
+  const nativeCameraInputs = (
+    <>
+      {/* Android: same as your old project. No capture attribute. */}
+      <input
+        ref={androidInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleNativeCapture}
+      />
+
+      {/* iOS: capture works better and opens native camera. */}
+      <input
+        ref={iosCameraInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        className="hidden"
+        onChange={handleNativeCapture}
+      />
+    </>
   );
 
   if (captured) {
@@ -221,7 +261,7 @@ export function CameraCapture({ onCapture }) {
           </Button>
         </div>
 
-        {isMobile && nativeCameraInput}
+        {isMobile && nativeCameraInputs}
       </div>
     );
   }
@@ -241,7 +281,7 @@ export function CameraCapture({ onCapture }) {
           </p>
         </div>
 
-        {nativeCameraInput}
+        {nativeCameraInputs}
 
         <div className="flex justify-center">
           <button
