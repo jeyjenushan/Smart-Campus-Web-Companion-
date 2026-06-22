@@ -6,7 +6,7 @@ import { Button, Input, Spinner } from '@/components/ui';
 import { CustomSelect } from '@/components/ui/Select';
 import { COURSES } from '@/data/seedData';
 import { cn } from '@/lib/cn';
-import { useIsMobileDevice } from '@/hooks/camera/useIsMobileDevice';
+import { useIsMobileDevice } from '@/hooks/camera/useIsMobileDevice.js';
 
 const COURSE_OPTS = [
   { value: '', label: 'Select course…' },
