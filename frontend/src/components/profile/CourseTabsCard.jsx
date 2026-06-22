@@ -113,16 +113,12 @@ export function CourseTabsCard({
         {tab === 'completed' &&
           (degreeLevelCompletedCourses.length ? (
             <>
-              <p className="text-xs text-ink-muted mb-3">
-                ✅ Click the checkmark to mark a course as current again
-              </p>
               <div className="space-y-2">
                 {degreeLevelCompletedCourses.map(course => (
                   <CourseRow 
-                    key={course.code} 
+                    key={`${course.code}-${course.completedAt}`}
                     course={course} 
-                    completed={false}
-                    onToggleComplete={handleToggleComplete}
+                    completed={true}
                   />
                 ))}
               </div>
