@@ -6,6 +6,10 @@ import {
 } from '@/services/assignment';
 import { scheduleDeadlineReminder } from '@/lib/notifications';
 
+
+//It is used to create the store called useAssignmentStore
+//set means used to update the store state
+//get means used to read the store state
 export const useAssignmentStore = create((set, get) => ({
   assignments: [],
   loading: false,

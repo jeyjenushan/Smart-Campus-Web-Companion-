@@ -1,6 +1,10 @@
 import { create } from 'zustand';
 import { getAllLectureNotes, putLectureNote, deleteLectureNote }  from '@/services/lecture';
 
+/**
+ * Notes Store - Manages lecture notes state
+ * Provides CRUD operations for lecture notes
+ */
 export const useNotesStore = create((set, get) => ({
   notes:   [],
   loading: false,

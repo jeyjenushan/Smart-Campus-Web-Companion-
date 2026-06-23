@@ -1,4 +1,8 @@
 import { create } from 'zustand';
+
+/*
+Save state in browser storage so that data remains even after the page is refreshed or the browser is closed
+*/
 import { persist } from 'zustand/middleware';
 
 /**
