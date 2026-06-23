@@ -1,9 +1,11 @@
 import {getCourseColor} from "@/lib/dashboard"
+import { useDarkMode } from '@/hooks/useDarkMode';
 
 import { cn } from '@/lib/cn';
 import { SessionTypeBadge } from "./SessionTypeBadge";
 
 export function ScheduleCard({ item }) {
+  const isDark = useDarkMode();
   const now = new Date();
   const [startH, startM] = item.startTime.split(':').map(Number);
   const [endH,   endM]   = item.endTime.split(':').map(Number);
@@ -15,7 +17,7 @@ export function ScheduleCard({ item }) {
   return (
     <div className={cn(
       'flex items-start gap-3 p-4 rounded-2xl border transition-all',
-      isLive ? 'bg-brand-50 border-brand-200 shadow-card' :
+      isLive ? (isDark ? 'bg-brand-950 border-brand-800 shadow-card' : 'bg-brand-50 border-brand-200 shadow-card') :
       isPast ? 'bg-surface-subtle border-surface-border opacity-60' :
                'bg-surface border-surface-border'
     )}>
@@ -33,7 +35,12 @@ export function ScheduleCard({ item }) {
           </div>
           <div className="flex items-center gap-1.5 flex-shrink-0">
             {isLive && (
-              <span className="flex items-center gap-1 text-xs font-bold text-brand-600 bg-brand-100 px-2 py-0.5 rounded-full animate-pulse-soft">
+              <span className={cn(
+                'flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-full animate-pulse-soft',
+                isDark 
+                  ? 'text-brand-300 bg-brand-900' 
+                  : 'text-brand-600 bg-brand-100'
+              )}>
                 <span className="w-1.5 h-1.5 rounded-full bg-brand-500 animate-pulse" />LIVE
               </span>
             )}
