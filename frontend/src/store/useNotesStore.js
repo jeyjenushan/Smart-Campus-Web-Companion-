@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { getAllLectureNotes, putLectureNote, deleteLectureNote } from '@/lib/db';
+import { getAllLectureNotes, putLectureNote, deleteLectureNote }  from '@/services/lecture';
 
 export const useNotesStore = create((set, get) => ({
   notes:   [],

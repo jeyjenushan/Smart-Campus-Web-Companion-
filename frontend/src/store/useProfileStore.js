@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { getProfile, saveProfile } from '@/lib/db';
+import { getProfile, saveProfile } from '@/services/profile';
 import { PROFILE_SEED, COURSES, DEGREES } from '@/data/seedData';
 import { useAuthStore } from './useAuthStore';
 

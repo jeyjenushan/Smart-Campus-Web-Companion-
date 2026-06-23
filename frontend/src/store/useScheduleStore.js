@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { getAllSchedule, putScheduleItem, deleteScheduleItem } from '@/lib/db';
+import { getAllSchedule, putScheduleItem, deleteScheduleItem } from '@/services/schedule';
 import { SCHEDULE_SEED } from '@/data/seedData';
 
 const SEEDED_KEY = 'campus-sync-schedule-seeded';

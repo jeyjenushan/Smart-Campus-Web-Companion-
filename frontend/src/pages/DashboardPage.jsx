@@ -1,7 +1,5 @@
 import { WifiOff } from 'lucide-react';
-
 import { TopHeader } from '@/components/layout/TopHeader';
-
 import { WeatherWidget } from '@/components/dashboard/WeatherWidget';
 import { DashboardGreeting } from '@/components/dashboard/DashboardGreeting';
 import { DashboardStats } from '@/components/dashboard/DashboardStats';
@@ -17,6 +15,8 @@ import {
 } from '@/hooks/dashboard';
 
 export default function DashboardPage() {
+
+  //It is used to detect the online/offline status of the user and display an offline indicator in the dashboard header. 
   const onlineStatus = useOnlineStatus();
 
   const {

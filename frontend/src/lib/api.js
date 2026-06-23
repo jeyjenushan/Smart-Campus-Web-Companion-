@@ -1,7 +1,8 @@
 /**
  * External API integration layer.
  * 1. Open-Meteo weather API (free, no key required)
- * 2. Mock REST API (JSONPlaceholder / internal mock)
+ * 2. Mock REST API : 'https://jsonplaceholder.typicode.com': This website
+ * is a fake REST API provided for testing purpose.
  */
 
 const WEATHER_BASE = 'https://api.open-meteo.com/v1';

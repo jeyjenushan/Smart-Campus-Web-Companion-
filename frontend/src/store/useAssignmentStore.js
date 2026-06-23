@@ -3,7 +3,7 @@ import {
   getAllAssignments,
   putAssignment,
   deleteAssignment,
-} from '@/lib/db';
+} from '@/services/assignment';
 import { scheduleDeadlineReminder } from '@/lib/notifications';
 
 export const useAssignmentStore = create((set, get) => ({

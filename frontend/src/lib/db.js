@@ -1,12 +1,17 @@
+
+//idb is a wrapper around indexedDB that makes it easier to use with async/await.
 import { openDB } from 'idb';
 
 const DB_NAME    = 'campus-sync-db';
 const DB_VERSION = 2;
+//It stores the database connection
 let dbPromise = null;
 
+//Returns a connection to the indexedDB database
 function getDB() {
   if (!dbPromise) {
     dbPromise = openDB(DB_NAME, DB_VERSION, {
+      //Mainly used to create the tables
       upgrade(db) {
         if (!db.objectStoreNames.contains('assignments')) {
           const as = db.createObjectStore('assignments', { keyPath: 'id' });
@@ -33,14 +38,3 @@ function getDB() {
   return dbPromise;
 }
 
-export async function getAllAssignments()        { return (await getDB()).getAll('assignments'); }
-export async function putAssignment(a)           { return (await getDB()).put('assignments', a); }
-export async function deleteAssignment(id)       { return (await getDB()).delete('assignments', id); }
-export async function getAllLectureNotes()        { return (await getDB()).getAll('lectureNotes'); }
-export async function putLectureNote(n)          { return (await getDB()).put('lectureNotes', n); }
-export async function deleteLectureNote(id)      { return (await getDB()).delete('lectureNotes', id); }
-export async function getProfile()               { return (await getDB()).get('profile', 'data'); }
-export async function saveProfile(data)          { return (await getDB()).put('profile', data, 'data'); }
-export async function getAllSchedule()            { return (await getDB()).getAll('schedule'); }
-export async function putScheduleItem(item)      { return (await getDB()).put('schedule', item); }
-export async function deleteScheduleItem(id)     { return (await getDB()).delete('schedule', id); }
