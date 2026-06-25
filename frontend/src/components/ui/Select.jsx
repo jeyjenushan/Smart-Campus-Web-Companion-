@@ -75,7 +75,7 @@ export function CustomSelect({ label, value, onValueChange, options }) {
               ${isDark ? 'border-slate-700 bg-slate-800' : 'border-surface-border bg-white'}
               shadow-xl
               overflow-hidden
-              transition-colors dark
+              transition-colors
             `}
           >
             <Select.Viewport
@@ -102,7 +102,7 @@ export function CustomSelect({ label, value, onValueChange, options }) {
                       cursor-pointer
                       outline-none
                       transition-colors
-                      ${isDark ? 'data-[highlighted]:bg-slate-700 data-[state=checked]:bg-slate-700' : 'data-[highlighted]:bg-slate-100 data-[state=checked]:bg-slate-100 data-[highlighted]:text-ink-strong data-[state=checked]:text-ink-strong'}
+                      ${isDark ? 'data-[highlighted]:bg-slate-700 data-[state=checked]:bg-slate-700 text-slate-100' : 'data-[highlighted]:bg-slate-100 data-[state=checked]:bg-slate-100 text-ink data-[highlighted]:text-ink-strong data-[state=checked]:text-ink-strong'}
                     `}
                   >
                     <Select.ItemText>
