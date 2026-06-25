@@ -102,7 +102,7 @@ export function CustomSelect({ label, value, onValueChange, options }) {
                       cursor-pointer
                       outline-none
                       transition-colors
-                      ${isDark ? 'data-[highlighted]:bg-slate-700 data-[state=checked]:bg-slate-700' : 'data-[highlighted]:bg-slate-100 data-[state=checked]:bg-slate-100'}
+                      ${isDark ? 'data-[highlighted]:bg-slate-700 data-[state=checked]:bg-slate-700' : 'data-[highlighted]:bg-slate-100 data-[state=checked]:bg-slate-100 data-[highlighted]:text-ink-strong data-[state=checked]:text-ink-strong'}
                     `}
                   >
                     <Select.ItemText>

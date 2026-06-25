@@ -3,7 +3,7 @@
 import { openDB } from 'idb';
 
 const DB_NAME    = 'campus-sync-db';
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 //It stores the database connection
 let dbPromise = null;
 

@@ -1,3 +1,5 @@
+import { getDB } from '@/lib/db';
+
 export async function getProfile(){ 
   return (await getDB()).get('profile', 'data'); 
 }
