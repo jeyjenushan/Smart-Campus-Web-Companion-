@@ -6,7 +6,7 @@ export function Modal({ open, onClose, title, description, children, className }
   return (
     <Dialog.Root open={open} onOpenChange={(v) => !v && onClose?.()}>
       <Dialog.Portal>
-        <Dialog.Overlay   className="fixed inset-0 bg-black/40 backdrop-blur-sm z-30 animate-in" />
+        <Dialog.Overlay   className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 animate-in" />
 
         <Dialog.Content
           className={cn(

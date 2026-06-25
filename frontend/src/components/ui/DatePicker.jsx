@@ -19,6 +19,7 @@ import { useDarkMode } from '@/hooks/useDarkMode';
 
 export function CustomDatePicker({ label, value, onChange, error, min }) {
   const containerRef = useRef(null);
+  const calendarRef = useRef(null);
   const [open, setOpen] = useState(false);
   const isDark = useDarkMode();
 
@@ -51,6 +52,14 @@ export function CustomDatePicker({ label, value, onChange, error, min }) {
       closeCalendar();
     }
   }
+
+  useEffect(() => {
+    if (open && calendarRef.current) {
+      setTimeout(() => {
+        calendarRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 0);
+    }
+  }, [open]);
 
   useEffect(() => {
     function handleClickOutside(e) {
@@ -94,7 +103,7 @@ export function CustomDatePicker({ label, value, onChange, error, min }) {
       </button>
 
       {open && (
-        <div className={`absolute left-0 top-full mt-2 w-[280px] max-w-[calc(100vw-3rem)] rounded-2xl border shadow-xl p-3 transition-colors ${
+        <div ref={calendarRef} className={`absolute left-0 top-full mt-2 w-[280px] max-w-[calc(100vw-3rem)] rounded-2xl border shadow-xl p-3 z-50 transition-colors ${
           isDark 
             ? 'border-slate-700 bg-slate-800' 
             : 'border-surface-border bg-white'
@@ -150,7 +159,7 @@ export function CustomDatePicker({ label, value, onChange, error, min }) {
                   disabled={disabled}
                   onClick={() => selectDate(date)}
                   className={cn(
-                    'h-8 w-8 rounded-lg text-xs flex items-center justify-center transition-colors text-ink dark:text-slate-100',
+                    'h-6 w-6 rounded-lg text-xs flex items-center justify-center transition-colors text-ink dark:text-slate-100',
                     'hover:bg-slate-100 dark:hover:bg-slate-700',
                     muted    && 'text-ink-faint dark:text-slate-500',
                     disabled && 'opacity-30 cursor-not-allowed hover:bg-transparent',
