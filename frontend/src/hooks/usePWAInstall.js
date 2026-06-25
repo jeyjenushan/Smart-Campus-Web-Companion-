@@ -1,5 +1,14 @@
 import { useEffect, useState } from 'react';
 
+
+//This is a custom react hook for handling PWA installation
+//It helps your app know
+/*
+1: Can this app be installed?
+2: Is the app already installed?
+3: Can we show the browser install popup?
+
+*/
 export function usePWAInstall() {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [isInstallable,  setIsInstallable]  = useState(false);

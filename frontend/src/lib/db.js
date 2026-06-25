@@ -38,3 +38,5 @@ function getDB() {
   return dbPromise;
 }
 
+export { getDB };
+

@@ -1,3 +1,4 @@
+import { getDB } from '@/lib/db';
 export async function getAllSchedule(){ 
   return (await getDB()).getAll('schedule'); 
 }

@@ -1,3 +1,4 @@
+import { getDB } from '@/lib/db';
 export async function getAllAssignments(){ 
   return (await getDB()).getAll('assignments');
 }
