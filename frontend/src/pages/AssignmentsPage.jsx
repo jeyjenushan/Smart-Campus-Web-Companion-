@@ -14,27 +14,19 @@ export default function AssignmentsPage() {
   const {
     loading,
     saving,
-
     search,
     setSearch,
-
     filter,
     setFilter,
-
     stats,
     filtered,
-
     showAdd,
     setShowAdd,
-
     editTarget,
     setEditTarget,
-
     deleteTarget,
     setDeleteTarget,
-
     toggleComplete,
-
     handleAdd,
     handleEdit,
     handleDelete,
