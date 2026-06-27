@@ -1,40 +1,31 @@
 import { Edit2, X, Lightbulb } from 'lucide-react';
-
 import { TopHeader } from '@/components/layout/TopHeader';
 import { Spinner } from '@/components/ui';
-
 import { ProfileHeaderCard } from '@/components/profile/ProfileHeaderCard';
 import { DegreeProgressCard } from '@/components/profile/DegreeProgressCard';
 import { CourseTabsCard } from '@/components/profile/CourseTabsCard';
 import { NotificationCard } from '@/components/profile/NotificationCard';
 import { AppInfoCard } from '@/components/profile/AppInfoCard';
-
 import { useProfilePage } from '@/hooks/profile/useProfilePage';
 
 export default function ProfilePage() {
   const {
     profile,
     loading,
-
     editing,
     setEditing,
-
     saving,
     form,
     setForm,
-
     tab,
     setTab,
-
     notifStatus,
     fileRef,
-
     progressPct,
     semCredits,
     completedCourses,
     cgpa,
     totalCreditsDone,
-
     handleSave,
     handleAvatarChange,
     toggleNotifications,
